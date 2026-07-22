@@ -763,199 +763,6 @@ let currentSanity = 50;
 let currentCursedItem = "tarot";
 let activeTarotDeck = [...tarotCards];
 
-// Audio Synthesizer with Bass Boost & Sinister Horror Orchestra BGM Engine
-const AudioSynth = {
-    audioCtx: null,
-    isMuted: false,
-    bgmPlaying: false,
-    bgmInterval: null,
-    bassOsc: null,
-    bgmGain: null,
-    
-    init() {
-        if (!this.audioCtx && (window.AudioContext || window.webkitAudioContext)) {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            this.audioCtx = new AudioCtx();
-        }
-    },
-
-    // Bass Boosted Click Sound
-    playClick() {
-        if (this.isMuted) return;
-        try {
-            this.init();
-            if (!this.audioCtx) return;
-            if (this.audioCtx.state === 'suspended') {
-                this.audioCtx.resume();
-            }
-            const now = this.audioCtx.currentTime;
-
-            // 1. High Click Tone
-            const osc = this.audioCtx.createOscillator();
-            const gain = this.audioCtx.createGain();
-            osc.type = "triangle";
-            osc.frequency.setValueAtTime(600, now);
-            osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
-            gain.gain.setValueAtTime(0.1, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-            osc.connect(gain);
-            gain.connect(this.audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.05);
-
-            // 2. Heavy Sub-Bass Boom (Bass Boosted!)
-            const sub = this.audioCtx.createOscillator();
-            const subGain = this.audioCtx.createGain();
-            sub.type = "sine";
-            sub.frequency.setValueAtTime(90, now);
-            sub.frequency.exponentialRampToValueAtTime(30, now + 0.12);
-            subGain.gain.setValueAtTime(0.35, now);
-            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-            sub.connect(subGain);
-            subGain.connect(this.audioCtx.destination);
-            sub.start(now);
-            sub.stop(now + 0.12);
-        } catch (e) {}
-    },
-
-    // Sinister Piano Note (Piano Macabro)
-    playPianoNote(freq, duration = 2.5) {
-        if (this.isMuted || !this.bgmPlaying) return;
-        try {
-            this.init();
-            if (!this.audioCtx) return;
-            const now = this.audioCtx.currentTime;
-            
-            const osc = this.audioCtx.createOscillator();
-            const gain = this.audioCtx.createGain();
-            
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(freq, now);
-            
-            // Piano decay envelope
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-            
-            osc.connect(gain);
-            if (this.bgmGain) {
-                gain.connect(this.bgmGain);
-            } else {
-                gain.connect(this.audioCtx.destination);
-            }
-            
-            osc.start(now);
-            osc.stop(now + duration);
-        } catch (e) {}
-    },
-
-    // Eerie Violin Screech Glissando (Violino Sinistro)
-    playViolinScreech() {
-        if (this.isMuted || !this.bgmPlaying) return;
-        try {
-            this.init();
-            if (!this.audioCtx) return;
-            const now = this.audioCtx.currentTime;
-
-            const osc = this.audioCtx.createOscillator();
-            const gain = this.audioCtx.createGain();
-            const filter = this.audioCtx.createBiquadFilter();
-
-            osc.type = "sawtooth";
-            const startFreq = 440 + Math.random() * 300;
-            const endFreq = startFreq + (Math.random() > 0.5 ? 120 : -120);
-            
-            osc.frequency.setValueAtTime(startFreq, now);
-            osc.frequency.linearRampToValueAtTime(endFreq, now + 3.0);
-
-            filter.type = "bandpass";
-            filter.frequency.setValueAtTime(800, now);
-            filter.Q.setValueAtTime(3.0, now);
-
-            gain.gain.setValueAtTime(0.01, now);
-            gain.gain.linearRampToValueAtTime(0.08, now + 1.5);
-            gain.gain.linearRampToValueAtTime(0.001, now + 3.5);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            if (this.bgmGain) {
-                gain.connect(this.bgmGain);
-            } else {
-                gain.connect(this.audioCtx.destination);
-            }
-
-            osc.start(now);
-            osc.stop(now + 3.5);
-        } catch (e) {}
-    },
-
-    // Toggle Sinister Orchestral BGM
-    toggleOrchestraBGM() {
-        this.init();
-        if (this.audioCtx && this.audioCtx.state === 'suspended') {
-            this.audioCtx.resume();
-        }
-
-        if (this.bgmPlaying) {
-            this.stopOrchestraBGM();
-            return false;
-        } else {
-            this.startOrchestraBGM();
-            return true;
-        }
-    },
-
-    startOrchestraBGM() {
-        this.bgmPlaying = true;
-        this.init();
-        if (!this.audioCtx) return;
-
-        // Master BGM Gain
-        this.bgmGain = this.audioCtx.createGain();
-        this.bgmGain.gain.setValueAtTime(0.25, this.audioCtx.currentTime);
-        this.bgmGain.connect(this.audioCtx.destination);
-
-        // Sub-Bass Orchestral Drone
-        this.bassOsc = this.audioCtx.createOscillator();
-        const bassGain = this.audioCtx.createGain();
-        this.bassOsc.type = "sine";
-        this.bassOsc.frequency.setValueAtTime(36, this.audioCtx.currentTime); // Low D0 sub-bass
-        bassGain.gain.setValueAtTime(0.2, this.audioCtx.currentTime);
-        this.bassOsc.connect(bassGain);
-        bassGain.connect(this.bgmGain);
-        this.bassOsc.start();
-
-        // Sinister Piano Chords Loop (Minor 2nd & Tritones)
-        const pianoNotes = [65.41, 69.30, 77.78, 82.41, 98.00, 103.83]; // Low C2, C#2, D#2, E2, G2, G#2
-        let step = 0;
-
-        this.bgmInterval = setInterval(() => {
-            if (!this.bgmPlaying) return;
-
-            // Play piano note
-            const note = pianoNotes[step % pianoNotes.length];
-            this.playPianoNote(note, 3.0);
-            step++;
-
-            // Trigger violin glissando every few steps
-            if (Math.random() < 0.45) {
-                this.playViolinScreech();
-            }
-        }, 2200);
-    },
-
-    stopOrchestraBGM() {
-        this.bgmPlaying = false;
-        if (this.bgmInterval) {
-            clearInterval(this.bgmInterval);
-            this.bgmInterval = null;
-        }
-        if (this.bassOsc) {
-            try { this.bassOsc.stop(); } catch (e) {}
-            this.bassOsc = null;
-        }
-    }
-};
-
 // 3. DOM Elements
 const elements = {
     navButtons: document.querySelectorAll(".nav-btn"),
@@ -1031,38 +838,25 @@ document.addEventListener("DOMContentLoaded", () => {
     renderAllEquipment();
     setupFaqAccordion();
     setupHuntTimer();
-    setupTacticalRadio();
-    setupBgmControls();
+    setupPrankFeatures();
     fetchDiscordWidgetStatus();
 });
 
 // 5. Navigation Panel Logic
 function setupTabNavigation() {
-    const navBtns = document.querySelectorAll(".nav-btn");
-    const tabSections = document.querySelectorAll(".tab-content");
-
-    navBtns.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const targetBtn = e.currentTarget;
-            const tabId = targetBtn.getAttribute("data-tab");
+    elements.navButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            elements.navButtons.forEach(b => b.classList.remove("active"));
+            elements.tabSections.forEach(tab => tab.classList.remove("active"));
             
-            if (!tabId) return;
-
-            // Remove active from all buttons & tabs
-            navBtns.forEach(b => b.classList.remove("active"));
-            tabSections.forEach(tab => tab.classList.remove("active"));
-
-            // Activate current button & tab
-            targetBtn.classList.add("active");
-            const targetTabSection = document.getElementById(`tab-${tabId}`);
-            if (targetTabSection) {
-                targetTabSection.classList.add("active");
-            }
-
-            // Play tactile sound
+            btn.classList.add("active");
+            activeTab = btn.getAttribute("data-tab");
+            document.getElementById(`tab-${activeTab}`).classList.add("active");
+            
+            // Trigger tactical click
             AudioSynth.playClick();
-
-            if (tabId === "tarot-guide") {
+            
+            if (activeTab === "tarot-guide") {
                 renderTarotGuide();
             }
         });
@@ -1233,8 +1027,11 @@ function generateTacticalSolverReport() {
     return msg;
 }
 
-// Bind Diário Discord Broadcast Button
+// Bind Diário Discord Broadcast Button & Theme Customizer Boot
 document.addEventListener("DOMContentLoaded", () => {
+    if (typeof setupThemeCustomizer === "function") {
+        setupThemeCustomizer();
+    }
     const broadcastSolverBtn = document.getElementById("btn-broadcast-solver-discord");
     if (broadcastSolverBtn) {
         broadcastSolverBtn.addEventListener("click", () => {
@@ -2045,75 +1842,93 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // 15. Tactical Chat Forum (Discord Webhook Transmitter & Alert System)
 function setupTacticalForum() {
-    const customWebhookInput = document.getElementById("custom-webhook-input");
-    const saveWebhookBtn = document.getElementById("btn-save-webhook");
-    const tacticalTerminal = document.getElementById("tactical-log-terminal");
+    const nickInput = document.getElementById("discord-user-nick");
+    const webhookInput = document.getElementById("discord-webhook-url");
+    const msgInput = document.getElementById("discord-msg-input");
+    const sendBtn = document.getElementById("btn-send-discord-msg");
+    const sendStatus = document.getElementById("discord-send-status");
 
-    if (customWebhookInput) {
-        const savedUrl = localStorage.getItem("blair_custom_webhook") || "";
-        customWebhookInput.value = savedUrl;
-    }
+    // Load saved Webhook URL & Nickname from localStorage
+    if (webhookInput) {
+        const savedUrl = localStorage.getItem("blair_discord_webhook");
+        if (savedUrl) webhookInput.value = savedUrl;
 
-    if (saveWebhookBtn && customWebhookInput) {
-        saveWebhookBtn.addEventListener("click", () => {
-            const url = customWebhookInput.value.trim();
-            localStorage.setItem("blair_custom_webhook", url);
-            if (url) {
-                showGlobalToast("✅ Webhook do Discord salvo no seu navegador!");
-            } else {
-                showGlobalToast("ℹ️ Webhook removido. Usando modo de console local.");
-            }
-            AudioSynth.playClick();
+        webhookInput.addEventListener("change", () => {
+            localStorage.setItem("blair_discord_webhook", webhookInput.value.trim());
         });
     }
 
-    function appendTerminalLog(msgText, isWebhook = false) {
-        if (!tacticalTerminal) return;
-        const timeStr = new Date().toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const logLine = document.createElement("div");
-        logLine.style.cssText = "padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); word-break: break-word;";
-        
-        let prefix = `<span style="color: var(--accent-blue);">[${timeStr}] 📻 LOCAL:</span> `;
-        if (isWebhook) {
-            prefix = `<span style="color: var(--accent-green);">[${timeStr}] 🌐 DISCORD:</span> `;
-        }
-        
-        logLine.innerHTML = `${prefix} ${msgText}`;
-        tacticalTerminal.appendChild(logLine);
-        tacticalTerminal.scrollTop = tacticalTerminal.scrollHeight;
+    if (nickInput) {
+        const savedNick = localStorage.getItem("blair_discord_nick");
+        if (savedNick) nickInput.value = savedNick;
+
+        nickInput.addEventListener("change", () => {
+            localStorage.setItem("blair_discord_nick", nickInput.value.trim());
+        });
+    }
+
+    const DEFAULT_WEBHOOK_URL = "https://discord.com/api/webhooks/1529135606339211304/oOqIr8OUfYtv08Nm2RYtY44Y975guBZ2YaCXeYLmHDchwHWt2KU2EyX2P1GorPvQc-Cp";
+
+    // Set default value in input if empty
+    if (webhookInput && !webhookInput.value) {
+        webhookInput.value = DEFAULT_WEBHOOK_URL;
     }
 
     function transmitMessage(content) {
         if (!content) return;
         
-        const customWebhookUrl = localStorage.getItem("blair_custom_webhook") || (customWebhookInput ? customWebhookInput.value.trim() : "");
-        const nickname = localStorage.getItem("blair_discord_nick") || "Investigador";
+        const nickname = nickInput ? (nickInput.value.trim() || "Investigador") : (localStorage.getItem("blair_discord_nick") || "Investigador");
+        let webhookUrl = webhookInput ? webhookInput.value.trim() : (localStorage.getItem("blair_discord_webhook") || "");
+        if (!webhookUrl) webhookUrl = DEFAULT_WEBHOOK_URL;
 
-        appendTerminalLog(content, !!customWebhookUrl);
-
-        if (customWebhookUrl && customWebhookUrl.startsWith("http")) {
+        if (webhookUrl && webhookUrl.startsWith("http")) {
             const standardPayload = {
                 username: `${nickname} (Blair HUD)`,
                 content: content
             };
 
-            // Send to user's custom Webhook
-            fetch(customWebhookUrl, {
+            // Try 1: Standard Channel Payload
+            fetch(webhookUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(standardPayload)
             }).then(res => {
                 if (res.ok || res.status === 204) {
-                    showGlobalToast("✅ Transmitido para o seu Webhook do Discord!");
+                    showStatus("✅ Transmitido para o Discord!");
+                    showGlobalToast("✅ Transmitido para o Discord!");
+                } else if (res.status === 400) {
+                    // Try 2: Forum Channel Payload (with thread_name)
+                    const forumPayload = {
+                        username: `${nickname} (Blair HUD)`,
+                        content: content,
+                        thread_name: "💬 Chat Tático - Transmissões de Campo"
+                    };
+                    return fetch(webhookUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(forumPayload)
+                    }).then(res2 => {
+                        if (res2.ok || res2.status === 204) {
+                            showStatus("✅ Transmitido para o Discord (Fórum)!");
+                            showGlobalToast("✅ Transmitido para o Discord!");
+                        } else {
+                            showStatus("⚠️ Erro no Webhook (HTTP " + res2.status + ")");
+                            showGlobalToast("⚠️ Erro no Webhook (HTTP " + res2.status + ")", true);
+                        }
+                    });
                 } else {
+                    showStatus("⚠️ Erro no Webhook (HTTP " + res.status + ")");
                     showGlobalToast("⚠️ Erro no Webhook (HTTP " + res.status + ")", true);
                 }
             }).catch(err => {
                 console.error("Erro no Webhook:", err);
+                showStatus("⚠️ Falha de conexão com Webhook.");
                 showGlobalToast("⚠️ Falha de conexão com Webhook.", true);
             });
         } else {
-            showGlobalToast("📋 Transmissão registrada no Console Tático!");
+            copyToClipboard(content);
+            showStatus("📋 Copiado para a Área de Transferência!");
+            showGlobalToast("📋 Copiado para a Área de Transferência!");
         }
 
         AudioSynth.playClick();
@@ -2520,57 +2335,232 @@ function setupHuntTimer() {
     resetBtn.addEventListener("click", resetTimer);
 }
 
-// 20. Tactical Radio & Voice Channel Integration
-function setupTacticalRadio() {
-    const radioBtns = document.querySelectorAll(".radio-transmit-btn");
+// 20. Prank & Jumpscare Interactive Setup (PIN Admin Protection)
+function setupPrankFeatures() {
+    const jumpscareBtn = document.getElementById("btn-trigger-jumpscare");
+    const jumpscareOverlay = document.getElementById("jumpscare-overlay");
+    const copyAlertBtns = document.querySelectorAll(".copy-alert-btn");
 
-    radioBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const voiceMsg = btn.getAttribute("data-voice");
-            const textMsg = btn.getAttribute("data-text");
+    const pinInput = document.getElementById("admin-pin-input");
+    const unlockBtn = document.getElementById("btn-unlock-admin");
+    const lockBtn = document.getElementById("btn-lock-admin");
+    const pinContainer = document.getElementById("admin-pin-container");
+    const controlsWrapper = document.getElementById("admin-controls-wrapper");
+    const lockBadge = document.getElementById("admin-lock-badge");
 
+    const MASTER_PIN = "1234";
+
+    function checkAdminState() {
+        const isUnlocked = localStorage.getItem("blair_admin_unlocked") === "true";
+        if (isUnlocked && controlsWrapper && pinContainer && lockBadge) {
+            controlsWrapper.style.display = "flex";
+            pinContainer.style.display = "none";
+            lockBadge.textContent = "🔓 Controle Mestre (Liberado)";
+            lockBadge.style.borderColor = "var(--accent-green)";
+            lockBadge.style.color = "var(--accent-green)";
+            lockBadge.style.background = "rgba(57, 255, 20, 0.08)";
+        } else if (controlsWrapper && pinContainer && lockBadge) {
+            controlsWrapper.style.display = "none";
+            pinContainer.style.display = "flex";
+            lockBadge.textContent = "🔒 Controle Mestre (Bloqueado)";
+            lockBadge.style.borderColor = "var(--accent-yellow)";
+            lockBadge.style.color = "var(--accent-yellow)";
+            lockBadge.style.background = "rgba(254, 228, 64, 0.08)";
+        }
+    }
+
+    if (unlockBtn && pinInput) {
+        unlockBtn.addEventListener("click", () => {
+            if (pinInput.value.trim() === MASTER_PIN) {
+                localStorage.setItem("blair_admin_unlocked", "true");
+                showGlobalToast("🔓 Acesso Mestre Concedido! Botões de Controle Liberados.");
+                checkAdminState();
+                AudioSynth.playClick();
+            } else {
+                showGlobalToast("❌ Senha incorreta! Tente novamente.", true);
+                pinInput.value = "";
+                AudioSynth.playClick();
+            }
+        });
+
+        pinInput.addEventListener("keyup", (e) => {
+            if (e.key === "Enter") unlockBtn.click();
+        });
+    }
+
+    if (lockBtn) {
+        lockBtn.addEventListener("click", () => {
+            localStorage.removeItem("blair_admin_unlocked");
+            showGlobalToast("🔒 Acesso Mestre Bloqueado.");
+            checkAdminState();
             AudioSynth.playClick();
+        });
+    }
 
-            // 1. Speak message out loud via Browser Speech Synthesis
-            if ('speechSynthesis' in window && voiceMsg) {
-                const utterance = new SpeechSynthesisUtterance(voiceMsg);
+    checkAdminState();
+
+    if (jumpscareBtn && jumpscareOverlay) {
+        jumpscareBtn.addEventListener("click", () => {
+            jumpscareOverlay.style.display = "flex";
+            AudioSynth.playMysticDraw();
+            
+            // TTS Scream/Jumpscare sound effect
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance("BOO! O FANTASMA PEGOU VOCÊ!");
                 utterance.lang = "pt-BR";
-                utterance.rate = 1.1;
-                utterance.pitch = 0.9;
+                utterance.pitch = 0.2;
+                utterance.rate = 1.6;
                 window.speechSynthesis.speak(utterance);
             }
 
-            // 2. Transmit formatted message to Discord live chat
-            if (window.transmitMessage && textMsg) {
-                window.transmitMessage(textMsg);
-                showGlobalToast("📻 Transmissão de Rádio enviada no Discord!");
-            } else if (textMsg) {
-                navigator.clipboard.writeText(textMsg).then(() => {
-                    showGlobalToast("📋 Mensagem do Rádio copiada! Cole no chat.");
+            setTimeout(() => {
+                jumpscareOverlay.style.display = "none";
+            }, 2500);
+        });
+    }
+
+    copyAlertBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const text = btn.getAttribute("data-text");
+            if (!text) return;
+
+            if (window.transmitMessage) {
+                window.transmitMessage(text);
+                showGlobalToast("📢 Trollagem transmitida no canal do Discord!");
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    showGlobalToast("📋 Trollagem copiada! Cole no chat do Discord.");
                 });
             }
+            AudioSynth.playClick();
         });
     });
 }
 
-// 21. Sinister Orchestral BGM Controls
-function setupBgmControls() {
-    const bgmBtn = document.getElementById("btn-toggle-bgm");
-    const bgmIcon = document.getElementById("bgm-icon");
-    const bgmLabel = document.getElementById("bgm-label");
+// Live Theme Customizer & LocalStorage Persistence
+function setupThemeCustomizer() {
+    const modal = document.getElementById("theme-customizer-modal");
+    const openBtn = document.getElementById("btn-open-customizer");
+    const closeBtn = document.getElementById("close-customizer-modal");
+    
+    const pickerBg = document.getElementById("picker-bg");
+    const pickerCard = document.getElementById("picker-card");
+    const pickerText = document.getElementById("picker-text");
+    const pickerPrimary = document.getElementById("picker-primary");
 
-    if (bgmBtn) {
-        bgmBtn.addEventListener("click", () => {
-            const isPlaying = AudioSynth.toggleOrchestraBGM();
-            if (isPlaying) {
-                if (bgmIcon) bgmIcon.className = "fa-solid fa-compact-disc fa-spin";
-                if (bgmLabel) bgmLabel.textContent = "MÚSICA: PAUSAR ORQUESTRA";
-                showGlobalToast("🎻 Orquestra Sinistra iniciada! (Piano & Violino Macabro)");
-            } else {
-                if (bgmIcon) bgmIcon.className = "fa-solid fa-compact-disc";
-                if (bgmLabel) bgmLabel.textContent = "MÚSICA: ORQUESTRA SINISTRA";
-                showGlobalToast("🔇 Música de fundo pausada.");
-            }
+    const btnReset = document.getElementById("btn-reset-custom-theme");
+    const btnSave = document.getElementById("btn-save-custom-theme");
+    const presetBtns = document.querySelectorAll(".theme-preset-btn");
+
+    if (openBtn && modal) {
+        openBtn.addEventListener("click", () => {
+            modal.classList.add("active");
+            if (typeof AudioSynth !== 'undefined' && AudioSynth.playClick) AudioSynth.playClick();
         });
     }
+
+    if (closeBtn && modal) {
+        closeBtn.addEventListener("click", () => {
+            modal.classList.remove("active");
+        });
+    }
+
+    const applyColors = (bg, card, text, primary) => {
+        const root = document.documentElement;
+        if (bg) root.style.setProperty("--bg-dark", bg);
+        if (card) root.style.setProperty("--bg-card", card);
+        if (text) {
+            root.style.setProperty("--text-main", text);
+            root.style.setProperty("--text-dark", text);
+        }
+        if (primary) {
+            root.style.setProperty("--primary", primary);
+        }
+    };
+
+    // Live color picker listeners
+    if (pickerBg) pickerBg.addEventListener("input", (e) => applyColors(e.target.value, null, null, null));
+    if (pickerCard) pickerCard.addEventListener("input", (e) => applyColors(null, e.target.value, null, null));
+    if (pickerText) pickerText.addEventListener("input", (e) => applyColors(null, null, e.target.value, null));
+    if (pickerPrimary) pickerPrimary.addEventListener("input", (e) => applyColors(null, null, null, e.target.value));
+
+    // Preset button listeners
+    presetBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const preset = btn.getAttribute("data-preset");
+            if (preset === "frutiger-aero") {
+                document.documentElement.removeAttribute("style");
+                applyColors("#e0f2fe", "rgba(255, 255, 255, 0.75)", "#032b45", "#0284c7");
+                if (pickerBg) pickerBg.value = "#e0f2fe";
+                if (pickerCard) pickerCard.value = "#ffffff";
+                if (pickerText) pickerText.value = "#032b45";
+                if (pickerPrimary) pickerPrimary.value = "#0284c7";
+            } else if (preset === "liquid-white") {
+                applyColors("#f1f5f9", "#ffffff", "#0f172a", "#0f172a");
+                if (pickerBg) pickerBg.value = "#f1f5f9";
+                if (pickerCard) pickerCard.value = "#ffffff";
+                if (pickerText) pickerText.value = "#0f172a";
+                if (pickerPrimary) pickerPrimary.value = "#0f172a";
+            } else if (preset === "jornal-1924") {
+                applyColors("#eee4d0", "#f8f3e8", "#1c1917", "#6b1d1d");
+                if (pickerBg) pickerBg.value = "#eee4d0";
+                if (pickerCard) pickerCard.value = "#f8f3e8";
+                if (pickerText) pickerText.value = "#1c1917";
+                if (pickerPrimary) pickerPrimary.value = "#6b1d1d";
+            } else if (preset === "dark-obsidian") {
+                applyColors("#080a11", "rgba(18, 24, 38, 0.75)", "#f8fafc", "#bc47ff");
+                if (pickerBg) pickerBg.value = "#080a11";
+                if (pickerCard) pickerCard.value = "#121826";
+                if (pickerText) pickerText.value = "#f8fafc";
+                if (pickerPrimary) pickerPrimary.value = "#bc47ff";
+            } else if (preset === "tactical-green") {
+                applyColors("#0e1a14", "rgba(20, 35, 26, 0.8)", "#e2f0d9", "#1e4d2b");
+                if (pickerBg) pickerBg.value = "#0e1a14";
+                if (pickerCard) pickerCard.value = "#14231a";
+                if (pickerText) pickerText.value = "#e2f0d9";
+                if (pickerPrimary) pickerPrimary.value = "#1e4d2b";
+            }
+            if (typeof showGlobalToast === 'function') showGlobalToast(`🎨 Tema aplicado!`);
+        });
+    });
+
+    if (btnSave) {
+        btnSave.addEventListener("click", () => {
+            const settings = {
+                bg: pickerBg ? pickerBg.value : "#f1f5f9",
+                card: pickerCard ? pickerCard.value : "#ffffff",
+                text: pickerText ? pickerText.value : "#0f172a",
+                primary: pickerPrimary ? pickerPrimary.value : "#0f172a"
+            };
+            localStorage.setItem("blair_custom_theme_v1", JSON.stringify(settings));
+            if (typeof showGlobalToast === 'function') showGlobalToast("💾 Suas preferências de tema foram salvas!");
+            if (modal) modal.classList.remove("active");
+        });
+    }
+
+    if (btnReset) {
+        btnReset.addEventListener("click", () => {
+            localStorage.removeItem("blair_custom_theme_v1");
+            document.documentElement.removeAttribute("style");
+            applyColors("#f1f5f9", "#ffffff", "#0f172a", "#0f172a");
+            if (pickerBg) pickerBg.value = "#f1f5f9";
+            if (pickerCard) pickerCard.value = "#ffffff";
+            if (pickerText) pickerText.value = "#0f172a";
+            if (pickerPrimary) pickerPrimary.value = "#0f172a";
+            if (typeof showGlobalToast === 'function') showGlobalToast("🔄 Cores restauradas para o padrão!");
+        });
+    }
+
+    // Load saved settings automatically on page load
+    try {
+        const saved = localStorage.getItem("blair_custom_theme_v1");
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            applyColors(parsed.bg, parsed.card, parsed.text, parsed.primary);
+            if (pickerBg && parsed.bg) pickerBg.value = parsed.bg;
+            if (pickerCard && parsed.card) pickerCard.value = parsed.card;
+            if (pickerText && parsed.text) pickerText.value = parsed.text;
+            if (pickerPrimary && parsed.primary) pickerPrimary.value = parsed.primary;
+        }
+    } catch(e){}
 }

@@ -5,32 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="O guia interativo definitivo para investigadores do jogo Blair no Roblox. Calcule riscos de caçada, filtre evidências e conheça os 21 fantasmas.">
     <title>Diário do Investigador: Blair (Roblox)</title>
-    <!-- Google Fonts: Outfit, Space Grotesk, JetBrains Mono -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS (Pro Suite 4.0 Cache Buster) -->
-    <link rel="stylesheet" href="styles.css?v=4.0">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dark-theme">
+    <div class="glow-container"></div>
+    
     <div id="global-toast-notification" style="position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;"></div>
 
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="brand">
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <div class="brand-icon">
-                        <i class="fa-solid fa-ghost"></i>
-                    </div>
+            <div class="brand" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2rem;">
+                <div style="display: flex; align-items: center; gap: 0.9rem;">
+                    <img src="assets/security_agency_logo.png" alt="Blair Security" style="width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
                     <div class="brand-text">
-                        <h2>BLAIR PRO</h2>
-                        <span>PAINEL INVESTIGATIVO</span>
+                        <h2>BLAIR SECURITY</h2>
+                        <span>INTELLIGENCE & TACTICAL HQ</span>
                     </div>
                 </div>
-                <button id="btn-toggle-audio" class="state-btn" style="border-radius: 50%; width: 36px; height: 36px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; flex-shrink: 0;" title="Alternar Áudio">
+                <button id="btn-toggle-audio" class="state-btn" style="border-radius: 50%; width: 36px; height: 36px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; flex-shrink: 0;" title="Alternar Áudio Espacial">
                     <i class="fa-solid fa-volume-xmark" id="audio-icon"></i>
                 </button>
             </div>
@@ -53,12 +53,12 @@
                 <button class="nav-btn" data-tab="forum" id="btn-forum">
                     <i class="fa-solid fa-comments"></i> <span>Chat Tático</span>
                 </button>
+                <button class="nav-btn" id="btn-open-customizer" style="margin-top: 0.6rem; border-color: var(--primary);">
+                    <i class="fa-solid fa-palette"></i> <span>Personalizar Tema</span>
+                </button>
             </nav>
             <div class="sidebar-footer">
-                <button id="btn-toggle-bgm" class="btn btn-primary" style="width: 100%; margin-bottom: 0.8rem; font-size: 0.78rem; font-weight: 700; background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(244, 63, 94, 0.2) 100%); border-color: var(--primary);">
-                    <i class="fa-solid fa-compact-disc" id="bgm-icon"></i> <span id="bgm-label">MÚSICA: ORQUESTRA SINISTRA</span>
-                </button>
-                <p style="font-size: 0.7rem; color: var(--text-muted); text-align: center;">Versão 3.0 • Piano & Violino Macabro</p>
+                <p>Versão 1.0 • Desenvolvido para Caçadores</p>
             </div>
         </aside>
 
@@ -153,7 +153,7 @@
                                 <i class="fa-solid fa-chevron-down chevron-icon"></i>
                             </div>
                             <div class="faq-answer">
-                                Nos mapas com clima frio ou congelante natural, a temperatura ambiente do mapa já cai naturalmente perto de 0°C a 3°C. Para confirmar se a <strong>Temperatura Congelante é uma Evidência oficial da criatura</strong>:<br>
+                                Nos mapas com clima frio ou congelante natural, a temperatura ambiente do mapa já cai naturally perto de 0°C a 3°C. Para confirmar se a <strong>Temperatura Congelante é uma Evidência oficial da criatura</strong>:<br>
                                 1. <strong>Ligue o Disjuntor Geral (Breaker):</strong> Isso aquece o mapa normal para cerca de 10°C a 15°C. Se a sala do fantasma continuar caindo abaixo de 0°C ou atingir valores negativos (&lt; 0°C ou -5°C no Termômetro), é EVIDÊNCIA CONFIRMADA.<br>
                                 2. <strong>Vapor da Respiração:</strong> Em mapas normais aquecidos, ver o bafinho/vapor da boca só ocorre no quarto do fantasma com evidência de frio.
                             </div>
@@ -641,6 +641,10 @@
                     
                     <div class="booboo-checklist-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
                         <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <input type="checkbox" id="spawn-farmhouse" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                            <label for="spawn-farmhouse" style="font-size: 0.85rem; cursor: pointer; color: var(--text-main);">Farmhouse (Sacada/Quartos)</label>
+                        </div>
+                        <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
                             <input type="checkbox" id="spawn-stillhouse" style="accent-color: var(--primary); width: 18px; height: 18px;">
                             <label for="spawn-stillhouse" style="font-size: 0.85rem; cursor: pointer; color: var(--text-main);">Stillhouse (Pôrão/Garagem)</label>
                         </div>
@@ -667,49 +671,82 @@
                                 <i class="fa-solid fa-headset" style="color: var(--accent-blue); font-size: 1.8rem;"></i> CENTRAL DE COMANDO DE CAMPO
                             </h2>
                             <span style="font-size: 0.85rem; color: var(--accent-green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">
-                                🔒 TRANSMISSÃO CRIPTOGRAFADA DE CAMPO
+                                🔒 LINK MILITAR CRIPTOGRAFADO (CANAL #1529135418979913756)
                             </span>
                         </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <a href="https://discord.com" target="_blank" class="btn btn-primary" style="padding: 0.7rem 1.6rem; font-size: 0.95rem; font-weight: 700; border-radius: 24px; background: #5865F2; border-color: #5865F2; box-shadow: 0 0 20px rgba(88,101,242,0.6);">
+                            <i class="fa-brands fa-discord" style="font-size: 1.2rem;"></i> Entrar no Discord HQ
+                        </a>
                     </div>
                 </div>
 
                 <div class="grid-layout" style="grid-template-columns: 1.2fr 0.8fr; gap: 2rem;">
-                    <!-- Tactical Transmission & Chat Console -->
+                    <!-- Chat Window Card (WidgetBot Live Feed) -->
                     <div class="card glass-card" style="padding: 1.6rem; height: 750px; display: flex; flex-direction: column; border-color: var(--accent-blue); overflow: hidden;">
                         <div class="card-header" style="padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 0.8rem;">
-                                <i class="fa-solid fa-terminal" style="color: var(--accent-blue); font-size: 1.8rem;"></i>
+                                <i class="fa-brands fa-discord" style="color: #5865F2; font-size: 1.8rem;"></i>
                                 <div>
-                                    <h3 style="font-size: 1.25rem; margin: 0; font-family: var(--font-header); font-weight: 700;">Console de Comunicação Tática</h3>
-                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Transmissão Privada de Equipe</span>
+                                    <h3 style="font-size: 1.25rem; margin: 0; font-family: var(--font-header); font-weight: 700;">QG Tático Discord (ao vivo)</h3>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Servidor ID: <code style="color: var(--accent-blue); font-size: 0.85rem;">1522640778688598286</code></span>
                                 </div>
                             </div>
+                            <button class="filter-btn" id="btn-copy-discord-id" title="Copiar ID do Servidor" style="padding: 0.6rem 1.1rem; font-size: 0.85rem; font-weight: 700;">
+                                <i class="fa-solid fa-copy"></i> Copiar ID
+                            </button>
                         </div>
 
-                        <!-- Webhook Customizer -->
-                        <div style="background: rgba(0,240,255,0.04); border: 1px solid rgba(0,240,255,0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-                            <label style="font-size: 0.8rem; font-weight: 700; color: #fff; display: block; margin-bottom: 0.4rem;">
-                                <i class="fa-brands fa-discord" style="color: #5865F2;"></i> Seu Webhook do Discord (Opcional):
-                            </label>
-                            <div style="display: flex; gap: 0.6rem;">
-                                <input type="password" id="custom-webhook-input" placeholder="Cole a URL do seu Webhook do Discord aqui..." style="flex: 1; padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); color: #fff; font-size: 0.82rem;">
-                                <button class="btn btn-primary" id="btn-save-webhook" style="padding: 0.6rem 1.1rem; font-size: 0.82rem; font-weight: 700;">
-                                    Salvar
-                                </button>
+                        <!-- Discord Live Status Bar -->
+                        <div id="discord-api-status-bar" style="background: rgba(88, 101, 242, 0.15); border: 1.5px solid rgba(88, 101, 242, 0.4); border-radius: 12px; padding: 0.8rem 1.2rem; margin-bottom: 1rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 12px var(--accent-green); display: inline-block;"></span>
+                                <span id="discord-server-name" style="font-weight: 700;">Servidor Conectado</span>
                             </div>
-                            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.4rem;">Deixe em branco para usar apenas cópia local de mensagens. Cada jogador usa seu próprio canal!</span>
+                            <div>
+                                <span style="color: var(--text-muted); font-size: 0.85rem;">Membros Online: <strong id="discord-online-count" style="color: var(--accent-green); font-size: 0.95rem;">--</strong></span>
+                            </div>
                         </div>
 
-                        <!-- Live Radio Log Terminal -->
-                        <div id="tactical-log-terminal" style="flex-grow: 1; min-height: 0; border-radius: 14px; padding: 1.2rem; border: 1px solid var(--border-color); background: #07090e; font-family: monospace; font-size: 0.85rem; color: var(--accent-green); overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem;">
-                            <div style="color: var(--text-muted); border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 0.4rem;">
-                                [SISTEMA] Console Tático de Comunicação Inicializado. Nenhuma transmissão enviada ainda.
-                            </div>
+                        <!-- WidgetBot Live Discord Container -->
+                        <div style="flex-grow: 1; min-height: 0; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-color); background: #0b0c12; position: relative;">
+                            <iframe id="discord-widgetbot-iframe" 
+                                    src="https://e.widgetbot.io/channels/1522640778688598286/1529135418979913756" 
+                                    width="100%" height="100%" 
+                                    allowtransparency="true" 
+                                    frameborder="0" 
+                                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-forms"
+                                    style="border: none; border-radius: 12px;">
+                            </iframe>
                         </div>
                     </div>
 
-                    <!-- Right Column: Media Gallery & Radio & Secondary Objectives -->
+                    <!-- Right Column: Radio, GIFs & Jumpscare Panel -->
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Quick Voice Radio Card -->
+                        <div class="card glass-card" style="padding: 1.5rem;">
+                            <h4 style="font-family: var(--font-header); font-size: 1rem; color: var(--accent-green); margin-bottom: 0.8rem; text-transform: uppercase;">
+                                <i class="fa-solid fa-walkie-talkie"></i> Transmissor de Rádio Tático
+                            </h4>
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">Clique no botão para transmitir alerta com voz narrada e mensagem no chat:</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                                <button class="filter-btn quick-radio-btn" data-text="📻 Encontrei a Sala do Fantasma! Temperatura Caindo!" data-voice="Encontrei a sala do fantasma" style="width: 100%; text-align: left; border-color: rgba(0,240,255,0.3); color: var(--accent-blue); font-size: 0.82rem;">
+                                    📍 Sala Localizada!
+                                </button>
+                                <button class="filter-btn quick-radio-btn" data-text="⚠️ ATENÇÃO: Caçada Ativa Iniciada! Escondam-se!" data-voice="Atenção caçada iniciada escondam se" style="width: 100%; text-align: left; border-color: rgba(255,0,85,0.3); color: var(--accent-red); font-size: 0.82rem;">
+                                    🚨 Caçada Ativa!
+                                </button>
+                                <button class="filter-btn quick-radio-btn" data-text="⚡ Prova de EMF Nível 5 Confirmada!" data-voice="Prova de EMF cinco confirmada" style="width: 100%; text-align: left; border-color: rgba(188,71,255,0.3); color: var(--primary); font-size: 0.82rem;">
+                                    ⚡ EMF Nível 5!
+                                </button>
+                                <button class="filter-btn quick-radio-btn" data-text="🌿 Usei Incenso (Smudge Stick)! 90s de Carência!" data-voice="Incenso usado noventa segundos de carência" style="width: 100%; text-align: left; border-color: rgba(57,255,20,0.3); color: var(--accent-green); font-size: 0.82rem;">
+                                    🌿 Incenso Usado!
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- GIFs & Media Gallery Card -->
                         <div class="card glass-card" style="padding: 1.5rem;">
                             <h4 style="font-family: var(--font-header); font-size: 0.95rem; color: var(--primary); margin-bottom: 0.8rem; text-transform: uppercase;">
@@ -737,40 +774,53 @@
                             </div>
                         </div>
 
-                        <!-- Card 2: Rádio Tático de Campo & Transmissão -->
-                        <div class="card glass-card" style="padding: 1.5rem; border-color: var(--accent-blue);">
+                        <!-- Card de Pegadinhas Táticas & Jumpscares (Protegido por PIN Admin) -->
+                        <div class="card glass-card" style="padding: 1.5rem; border-color: var(--accent-red);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                                <h4 style="font-family: var(--font-header); font-size: 1rem; color: var(--accent-blue); margin: 0; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fa-solid fa-walkie-talkie"></i> Rádio Tático & Transmissão
+                                <h4 style="font-family: var(--font-header); font-size: 1rem; color: var(--accent-red); margin: 0; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-ghost"></i> Pegadinhas Táticas & Sustos
                                 </h4>
-                                <span class="badge" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-color: var(--accent-green); color: var(--accent-green); background: rgba(57,255,20,0.08);">
-                                    🎙️ Frequência 144.80 MHz
+                                <span id="admin-lock-badge" class="badge" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-color: var(--accent-yellow); color: var(--accent-yellow); background: rgba(254,228,64,0.08);">
+                                    🔒 Controle Mestre (Bloqueado)
                                 </span>
                             </div>
-
+                            
                             <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
-                                Entre no canal de voz do Discord e envie transmissões em viva-voz para a equipe:
+                                Digite sua Senha Mestre (PIN Padrão: <code style="color: var(--accent-blue);">1234</code>) para liberar os botões de controle de jumpscare e trollagens!
                             </p>
 
-                            <!-- Direct Voice Channel Join Button -->
-                            <a href="https://discord.com" target="_blank" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; padding: 0.75rem; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%); border-color: #5865F2; box-shadow: 0 0 15px rgba(88,101,242,0.4); margin-bottom: 1rem;">
-                                <i class="fa-solid fa-phone-volume"></i> ABRIR O DISCORD (CHAMADA DE VOZ)
-                            </a>
+                            <!-- PIN Input Container -->
+                            <div id="admin-pin-container" style="display: flex; gap: 0.6rem; margin-bottom: 1rem;">
+                                <input type="password" id="admin-pin-input" placeholder="Digite a Senha Mestre..." style="flex: 1; padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); color: #fff; font-size: 0.85rem;">
+                                <button class="btn btn-primary" id="btn-unlock-admin" style="padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 700;">
+                                    Entrar
+                                </button>
+                            </div>
 
-                            <!-- Push To Talk (PTT) Quick Transmit Buttons -->
-                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Transmissão de Voz no Rádio:</span>
-                                <button class="filter-btn radio-transmit-btn" data-voice="Atenção equipe! O fantasma iniciou caçada! Todo mundo quieto no microfone!" data-text="📻 **[RÁDIO DE CAMPO]** 🚨 Caçada Iniciada! Silêncio no chat de voz e corram para os armários!" style="width: 100%; text-align: left; border-color: rgba(255,0,85,0.4); color: var(--accent-red); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fa-solid fa-tower-cell"></i> "Alerta de Caçada (Silêncio!)"
+                            <!-- Controls Area (Hidden until correct PIN is entered) -->
+                            <div id="admin-controls-wrapper" style="display: none; flex-direction: column; gap: 0.8rem;">
+                                <div style="font-size: 0.75rem; color: var(--accent-green); font-weight: 700; background: rgba(57,255,20,0.08); padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(57,255,20,0.2);">
+                                    🔓 Acesso Liberado: Você está no Controle Mestre!
+                                </div>
+                                <button class="btn btn-primary" id="btn-trigger-jumpscare" style="width: 100%; padding: 0.85rem; font-size: 0.9rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-red) 0%, #b91c1c 100%); border-color: var(--accent-red); box-shadow: 0 0 20px rgba(255,0,85,0.5);">
+                                    😱 Disparar Jumpscare da Foto na Tela!
                                 </button>
-                                <button class="filter-btn radio-transmit-btn" data-voice="Achei o quarto do fantasma! Temperatura caiu para menos cinco graus!" data-text="📻 **[RÁDIO DE CAMPO]** ❄️ Sala Favorita Localizada! Temperatura Negativa Confirmada!" style="width: 100%; text-align: left; border-color: rgba(0,240,255,0.4); color: var(--accent-blue); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fa-solid fa-snowflake"></i> "Quarto Encontrado (-5°C)"
-                                </button>
-                                <button class="filter-btn radio-transmit-btn" data-voice="Atenção! Usei o incenso na sala do fantasma, estamos protegidos por noventa segundos!" data-text="📻 **[RÁDIO DE CAMPO]** 🌿 Smudge Stick Usado! Quarto Limpo com Sucesso (90s de Paz)!" style="width: 100%; text-align: left; border-color: rgba(57,255,20,0.4); color: var(--accent-green); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fa-solid fa-spray-can"></i> "Incenso Usado (90s Protegido)"
-                                </button>
-                                <button class="filter-btn radio-transmit-btn" data-voice="Fantasma identificado! Preparem os crucifixos e finalizem o diário!" data-text="📻 **[RÁDIO DE CAMPO]** 🎯 Fantasma Identificado! Finalizem o Diário e Evacuem!" style="width: 100%; text-align: left; border-color: rgba(188,71,255,0.4); color: var(--primary); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fa-solid fa-circle-check"></i> "Fantasma Deduzido (Finalizar!)"
+
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Trollagens Rápidas p/ Discord:</span>
+                                    <button class="filter-btn copy-alert-btn" data-text="⚠️ ALERTA DE CAMPO: O Investigador se assustou com um barulho de porta e atraiu o Demon! 🏃‍♂️💨" style="width: 100%; text-align: left; border-color: rgba(255,0,85,0.3); color: var(--accent-red); font-size: 0.78rem;">
+                                        <i class="fa-solid fa-face-grimace"></i> "Amigo atraiu o Demon"
+                                    </button>
+                                    <button class="filter-btn copy-alert-btn" data-text="💀 CUIDADO: Alguém soltou a Tábua Ouija sem dizer Goodbye! Caçada amaldiçoada iniciada!" style="width: 100%; text-align: left; border-color: rgba(188,71,255,0.3); color: var(--primary); font-size: 0.78rem;">
+                                        <i class="fa-solid fa-skull"></i> "Esqueceu o Goodbye"
+                                    </button>
+                                    <button class="filter-btn copy-alert-btn" data-text="🧸 DESASTRE: O Investigador tropeçou na boneca Boo-Boo!" style="width: 100%; text-align: left; border-color: rgba(254,228,64,0.3); color: var(--accent-yellow); font-size: 0.78rem;">
+                                        <i class="fa-solid fa-face-dizzy"></i> "Tropeçou na boneca"
+                                    </button>
+                                </div>
+
+                                <button class="filter-btn" id="btn-lock-admin" style="width: 100%; text-align: center; margin-top: 0.4rem; padding: 0.4rem; font-size: 0.75rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-lock"></i> Bloquear Acesso Novamente
                                 </button>
                             </div>
                         </div>
@@ -811,12 +861,63 @@
         </main>
     </div>
 
+    <!-- Visual Jumpscare Overlay (Custom Scary Face Image) -->
+    <div id="jumpscare-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.96); z-index: 999999; align-items: center; justify-content: center; flex-direction: column; animation: glitchFlash 0.08s infinite alternate; pointer-events: none;">
+        <img id="jumpscare-ghost-img" src="ghost_face_jumpscare.jpg" alt="Ghost Jumpscare" style="max-width: 85vw; max-height: 70vh; border-radius: 20px; border: 3px solid #00f0ff; box-shadow: 0 0 50px #00f0ff, 0 0 100px #ff0055; animation: jumpPulse 0.12s infinite alternate; object-fit: contain;">
+        <h1 style="font-family: var(--font-header); font-size: 2.8rem; color: #fff; text-shadow: 0 0 25px #00f0ff, 0 0 40px #ff0055; margin-top: 1.5rem; text-transform: uppercase; text-align: center; letter-spacing: 2px;">👁️ O FANTASMA PEGOU VOCÊ!</h1>
+    </div>
+
     <!-- Ghost Details Modal -->
     <div class="modal" id="ghost-modal">
         <div class="modal-content glass-card">
             <span class="close-modal-btn" id="close-modal">&times;</span>
             <div class="modal-body" id="ghost-modal-body">
                 <!-- Content will be rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Customizer Modal -->
+    <div class="modal" id="theme-customizer-modal">
+        <div class="modal-content glass-card" style="max-width: 600px;">
+            <span class="close-modal-btn" id="close-customizer-modal">&times;</span>
+            <h2 style="font-family: var(--font-header); margin-bottom: 0.4rem; color: var(--text-dark); display: flex; align-items: center; gap: 0.6rem;">
+                <i class="fa-solid fa-palette" style="color: var(--accent-blue);"></i> Personalizador de Aparência
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Escolha um estilo pronto ou selecione suas próprias cores e temas!</p>
+
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-dark);">Estilos Pré-definidos:</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.5rem;">
+                <button class="filter-btn theme-preset-btn" data-preset="frutiger-aero">🌊 Frutiger Aero</button>
+                <button class="filter-btn theme-preset-btn" data-preset="liquid-white">💎 Liquid Glass (Branco)</button>
+                <button class="filter-btn theme-preset-btn" data-preset="jornal-1924">📜 Jornal Antigo 1924</button>
+                <button class="filter-btn theme-preset-btn" data-preset="dark-obsidian">🌌 Dark Obsidian</button>
+                <button class="filter-btn theme-preset-btn" data-preset="tactical-green">🌲 Dossiê Tático Verde</button>
+            </div>
+
+            <h4 style="font-size: 0.95rem; margin-bottom: 0.8rem; color: var(--text-dark);">Ajuste Livre de Cores:</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.88rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.3rem; font-weight: 600;">Fundo da Tela:</label>
+                    <input type="color" id="picker-bg" value="#f1f5f9" style="width: 100%; height: 38px; cursor: pointer; border-radius: 6px; border: 1px solid var(--border-color);">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.3rem; font-weight: 600;">Cor dos Cartões:</label>
+                    <input type="color" id="picker-card" value="#ffffff" style="width: 100%; height: 38px; cursor: pointer; border-radius: 6px; border: 1px solid var(--border-color);">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.3rem; font-weight: 600;">Cor do Texto Principal:</label>
+                    <input type="color" id="picker-text" value="#0f172a" style="width: 100%; height: 38px; cursor: pointer; border-radius: 6px; border: 1px solid var(--border-color);">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.3rem; font-weight: 600;">Cor de Destaque / Botões:</label>
+                    <input type="color" id="picker-primary" value="#0f172a" style="width: 100%; height: 38px; cursor: pointer; border-radius: 6px; border: 1px solid var(--border-color);">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.8rem; justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                <button id="btn-reset-custom-theme" class="btn btn-secondary">Restaurar Padrão</button>
+                <button id="btn-save-custom-theme" class="btn btn-primary">Salvar Preferências</button>
             </div>
         </div>
     </div>
