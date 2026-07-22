@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O guia interativo definitivo para investigadores do jogo Blair no Roblox. Calcule riscos de caçada, filtre evidências e conheça os 21 fantasmas.">
+    <title>Diário do Investigador: Blair (Roblox)</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div class="glow-container"></div>
+    
+    <div id="global-toast-notification" style="position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 3.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.9rem;">
+                    <i class="fa-solid fa-ghost logo-icon"></i>
+                    <div class="brand-text">
+                        <h2>BLAIR</h2>
+                        <span>INVESTIGATOR PANEL</span>
+                    </div>
+                </div>
+                <button id="btn-toggle-audio" class="state-btn" style="border-radius: 50%; width: 36px; height: 36px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; flex-shrink: 0;" title="Alternar Áudio Espacial">
+                    <i class="fa-solid fa-volume-xmark" id="audio-icon"></i>
+                </button>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="solver" id="btn-solver">
+                    <i class="fa-solid fa-book-open"></i> <span>Diário</span>
+                </button>
+                <button class="nav-btn" data-tab="ghosts" id="btn-ghosts">
+                    <i class="fa-solid fa-skull"></i> <span>Grimório</span>
+                </button>
+                <button class="nav-btn" data-tab="sanity" id="btn-sanity">
+                    <i class="fa-solid fa-heart-pulse"></i> <span>Sanidade</span>
+                </button>
+                <button class="nav-btn" data-tab="cursed" id="btn-cursed">
+                    <i class="fa-solid fa-wand-sparkles"></i> <span>Itens & Modelos</span>
+                </button>
+                <button class="nav-btn" data-tab="tarot-guide" id="btn-tarot-guide">
+                    <i class="fa-solid fa-square-poll-horizontal"></i> <span>Guia Tarot</span>
+                </button>
+                <button class="nav-btn" data-tab="forum" id="btn-forum">
+                    <i class="fa-solid fa-comments"></i> <span>Chat Tático</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Versão 1.0 • Desenvolvido para Caçadores</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Mobile Top Bar (Mobile Only) -->
+            <header class="mobile-top-bar">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <i class="fa-solid fa-ghost logo-icon" style="font-size: 1.25rem; color: var(--primary);"></i>
+                    <div>
+                        <h2 style="font-family: var(--font-header); font-size: 1.05rem; color: #fff; margin: 0; letter-spacing: 1px;">BLAIR <span style="font-size: 0.6rem; color: var(--accent-blue); font-family: var(--font-body); display: inline-block; margin-left: 0.3rem;">HUD MOBILE</span></h2>
+                    </div>
+                </div>
+                <button id="btn-toggle-audio-mobile" class="state-btn" style="border-radius: 50%; width: 38px; height: 38px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;" title="Alternar Som">
+                    <i class="fa-solid fa-volume-xmark" id="audio-icon-mobile"></i>
+                </button>
+            </header>
+
+            <!-- TAB 1: EVIDENCE SOLVER -->
+            <section id="tab-solver" class="tab-content active">
+                <header class="tab-header">
+                    <h1>Diário de Evidências</h1>
+                    <p>Marque as evidências encontradas no local (✓) ou descarte as que foram testadas e falharam (✗).</p>
+                </header>
+                
+                <div class="grid-layout">
+                    <!-- Left: Evidence Control Center -->
+                    <div class="card glass-card evidence-control">
+                        <div class="card-header" style="flex-wrap: wrap; gap: 0.5rem; justify-content: space-between; align-items: center;">
+                            <h3><i class="fa-solid fa-magnifying-glass"></i> Evidências Ativas</h3>
+                            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                                <label style="font-size: 0.72rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; font-weight: 600; background: rgba(0,240,255,0.08); padding: 0.3rem 0.6rem; border-radius: 12px; border: 1px solid rgba(0,240,255,0.2);">
+                                    <input type="checkbox" id="chk-auto-discord-sync" style="accent-color: var(--accent-blue);"> Auto-Sync Discord
+                                </label>
+                                <button class="btn btn-primary" id="btn-broadcast-solver-discord" style="background: #5865F2; border-color: #5865F2; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 14px; box-shadow: 0 0 10px rgba(88,101,242,0.4);">
+                                    <i class="fa-brands fa-discord"></i> Enviar p/ Discord
+                                </button>
+                                <button class="btn btn-secondary" id="btn-reset-evidence" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                                    <i class="fa-solid fa-arrow-rotate-left"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="evidence-list" id="evidence-selector-grid">
+                            <!-- Evidences will be dynamically rendered here with 3 states: Neutral, Confirmed, Discarded -->
+                        </div>
+
+                        <!-- Solver Recommendations box -->
+                        <div class="recommendations-box" id="solver-recommendations">
+                            <h4><i class="fa-solid fa-lightbulb"></i> Análise de Campo</h4>
+                            <p id="recommendation-text">Marque algumas evidências para receber sugestões de testes.</p>
+                        </div>
+
+                        <!-- Tool Image Viewer -->
+                        <div class="tool-viewer-box glass-card" id="tool-photo-viewer" style="margin-top: 1.5rem; display: none; padding: 1.2rem;">
+                            <h4 style="color: var(--accent-blue); font-size: 0.95rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-header);">
+                                <i class="fa-solid fa-camera"></i> Detalhe do Equipamento
+                            </h4>
+                            <div class="tool-photo-container" style="width: 100%; height: 180px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); background: rgba(0,0,0,0.3); margin-bottom: 0.8rem;">
+                                <img id="tool-photo-img" src="" alt="Foto do item" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <h5 id="tool-photo-name" style="font-size: 0.9rem; margin-bottom: 0.3rem; color: var(--text-main); font-weight: 700;">Dispositivo</h5>
+                            <p id="tool-photo-desc" style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">Carregando...</p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Filtered Ghost List -->
+                    <div class="card glass-card possible-ghosts-container">
+                        <div class="card-header">
+                            <h3>
+                                <i class="fa-solid fa-fingerprint"></i> Fantasmas Possíveis 
+                                <span class="badge" id="possible-ghost-count">21</span>
+                            </h3>
+                        </div>
+                        <div class="ghosts-scroll-list" id="possible-ghosts-list">
+                            <!-- Filtered ghosts list with evidence bubbles will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ & Practical Questions Section -->
+                <div class="card glass-card" style="margin-top: 2rem; padding: 1.8rem;">
+                    <div class="card-header" style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem;">
+                        <h3><i class="fa-solid fa-circle-question" style="color: var(--primary);"></i> Perguntas & Respostas Frequentes de Campo (FAQ do Caçador)</h3>
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">Tiras-dúvidas essenciais para investigação técnica.</span>
+                    </div>
+
+                    <div class="faq-accordion">
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>❄️ Se o mapa é congelante (ex: Acampamento ou Inverno), como saber se a criatura TAMBÉM tem Temperatura Congelante como Evidência?</span>
+                                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                Nos mapas com clima frio ou congelante natural, a temperatura ambiente do mapa já cai naturalmente perto de 0°C a 3°C. Para confirmar se a <strong>Temperatura Congelante é uma Evidência oficial da criatura</strong>:<br>
+                                1. <strong>Ligue o Disjuntor Geral (Breaker):</strong> Isso aquece o mapa normal para cerca de 10°C a 15°C. Se a sala do fantasma continuar caindo abaixo de 0°C ou atingir valores negativos (&lt; 0°C ou -5°C no Termômetro), é EVIDÊNCIA CONFIRMADA.<br>
+                                2. <strong>Vapor da Respiração:</strong> Em mapas normais aquecidos, ver o bafinho/vapor da boca só ocorre no quarto do fantasma com evidência de frio.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>⚡ Qual a diferença entre leitura EMF 5 real da criatura vs Anomalias/Eventos do ambiente?</span>
+                                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                Anomalias elétricas normais do mapa causam picos temporários de EMF Nível 2 a 4 ao apagar luzes ou mexer em portas. <strong>EMF Nível 5 é uma prova oficial</strong> e só ocorre quando há uma chance de 25% em QUALQUER interação do fantasma (arremessar objeto, tocar janela ou bater porta) apitar exatamente no nível 5 (todas as luzes vermelhas do leitor).
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>📻 A Caixa de Espírito (Spirit Box) exige luz desligada e estar sozinho?</span>
+                                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                Sim! Para obter resposta na Spirit Box, você deve obrigatoriamente estar no mesmo quarto que o fantasma, com as <strong>luzes da sala completamente desligadas</strong>. Fantasmas tímidos (como o Shade) exigem que apenas 1 jogador esteja na sala para responder.
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>📖 Como forçar a criatura a escrever no Livro de Escrita Fantasma?</span>
+                                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                Coloque o livro no caminho exato onde o fantasma vaga ou perto do ponto de maior atividade física. Se houver muitos objetos soltos na sala, o fantasma pode preferir jogá-los em vez de escrever; remova objetos ao redor do livro para aumentar a chance de escrita!
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>❌ Quando posso descartar uma evidência com 100% de certeza (botão ✗)?</span>
+                                <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                Só descarte uma evidência se você realizou o teste no quarto correto com sanidade adequada. Exemplo: se o fantasma interagiu 10 vezes com a câmera de vídeo no escuro e NUNCA mostrou Orbes ou DOTS, ou se você passou 5 minutos na sala congelada com o disjuntor ligado e a temperatura nunca caiu abaixo de 5°C.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Variables Section (Pros & Cons for Creatures vs Hunters) -->
+                <div class="card glass-card" style="margin-top: 2rem; padding: 1.8rem;">
+                    <div class="card-header" style="margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem;">
+                        <h3><i class="fa-solid fa-map-location-dot" style="color: var(--accent-blue);"></i> Análise de Variáveis Ambientais dos Mapas (Bônus & Prejuízos)</h3>
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">Como os fatores ambientais impactam os fantasmas e a equipe de caçadores.</span>
+                    </div>
+
+                    <div class="map-grid">
+                        <!-- Map Factor 1: Frio & Neve -->
+                        <div class="map-card">
+                            <h4><i class="fa-solid fa-snowflake" style="color: var(--accent-blue);"></i> Mapas Frios / Neve</h4>
+                            <div class="map-pro-con">
+                                <div class="map-pro">
+                                    <strong>👿 Vantagem p/ Criaturas:</strong> Fantasmas velozes no frio (como Hantu e Krasue) ganham impulso de velocidade natural no mapa inteiro. A sanidade dos caçadores cai 1.5x mais rápido no frio.
+                                </div>
+                                <div class="map-con">
+                                    <strong>🛡️ Impacto p/ Caçadores:</strong> Dificulta a medição da Temperatura Congelante inicial. Exige ligar o disjuntor imediatamente para aquecer os ambientes.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Map Factor 2: Mapas Grandes -->
+                        <div class="map-card">
+                            <h4><i class="fa-solid fa-building" style="color: var(--primary);"></i> Mapas Grandes (Escola/Hospital)</h4>
+                            <div class="map-pro-con">
+                                <div class="map-pro">
+                                    <strong>👿 Vantagem p/ Criaturas:</strong> Fantasmas stealth (Banshee/Rae/Demon) têm mais espaço para vagar e esconder o quarto favorito. Disjuntor fica muito distante da entrada.
+                                </div>
+                                <div class="map-con">
+                                    <strong>🛡️ Impacto p/ Caçadores:</strong> Muito espaço e salas com armários para se esconder durante caçadas; porém exige muito tempo de caminhada e gasto de pílulas de sanidade.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Map Factor 3: Mapas Pequenos -->
+                        <div class="map-card">
+                            <h4><i class="fa-solid fa-house" style="color: var(--accent-green);"></i> Mapas Pequenos (Casas)</h4>
+                            <div class="map-pro-con">
+                                <div class="map-pro">
+                                    <strong>👿 Vantagem p/ Criaturas:</strong> Caçadas são letais! O fantasma encontra investigadores facilmente em corredores curtos. Esconderijos são escassos.
+                                </div>
+                                <div class="map-con">
+                                    <strong>🛡️ Impacto p/ Caçadores:</strong> Muito fácil e rápido de localizar o quarto favorito com termômetro e espalhar sensores e câmeras de monitoramento.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Map Factor 4: Clima & Chuva -->
+                        <div class="map-card">
+                            <h4><i class="fa-solid fa-cloud-showers-heavy" style="color: var(--accent-yellow);"></i> Clima (Chuva & Trovões)</h4>
+                            <div class="map-pro-con">
+                                <div class="map-pro">
+                                    <strong>👿 Vantagem p/ Criaturas:</strong> O barulho constante da chuva e relâmpagos abafa o som dos passos do fantasma ao se aproximar.
+                                </div>
+                                <div class="map-con">
+                                    <strong>🛡️ Impacto p/ Caçadores:</strong> Causa ruído estático no Microfone Parabólico e dificulta ouvir sussurros ou batidas fracas em portas.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: GHOST GRIMORE -->
+            <section id="tab-ghosts" class="tab-content">
+                <header class="tab-header">
+                    <h1>Grimório de Fantasmas</h1>
+                    <p>Consulte a enciclopédia completa das 21 entidades paranormais do Blair.</p>
+                </header>
+
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="ghost-search-input" placeholder="Pesquisar fantasma pelo nome...">
+                    </div>
+                    <div class="filter-tags">
+                        <button class="filter-btn active" data-filter="all">Todos</button>
+                        <button class="filter-btn" data-filter="aggressive">Altamente Agressivos</button>
+                        <button class="filter-btn" data-filter="speed">Velozes na Caçada</button>
+                        <button class="filter-btn" data-filter="blair-special">Exclusivos Blair</button>
+                    </div>
+                </div>
+                
+                <div class="evidence-filter-bar" style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; background: rgba(255,255,255,0.01); padding: 0.8rem 1rem; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-right: 0.5rem;">Filtrar por Evidência Requerida:</span>
+                    <button class="filter-btn active ev-filter-btn" data-ev-filter="all">Todas</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="emf">EMF Nív. 5</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="temp">Temp. Negativa</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="box">Spirit Box</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="orbs">Orbes</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="uv">Ultravioleta</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="book">Escrita Fantasma</button>
+                    <button class="filter-btn ev-filter-btn" data-ev-filter="sls">Anomalia SLS</button>
+                </div>
+                
+                <div class="advanced-filters-bar" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.8rem; background: rgba(255,255,255,0.01); padding: 1rem; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-right: 0.5rem; min-width: 140px;">Velocidade de Caçada:</span>
+                        <button class="filter-btn active speed-filter-btn" data-speed-filter="all">Todas</button>
+                        <button class="filter-btn speed-filter-btn" data-speed-filter="los_accel">Acelera c/ Visão</button>
+                        <button class="filter-btn speed-filter-btn" data-speed-filter="constant">Constante</button>
+                        <button class="filter-btn speed-filter-btn" data-speed-filter="variable">Variável / Especial</button>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-right: 0.5rem; min-width: 140px;">Atividade no Quarto:</span>
+                        <button class="filter-btn active activity-filter-btn" data-activity-filter="all">Todas</button>
+                        <button class="filter-btn activity-filter-btn" data-activity-filter="high">Muito Ativo</button>
+                        <button class="filter-btn activity-filter-btn" data-activity-filter="shy">Tímido / Passivo</button>
+                        <button class="filter-btn activity-filter-btn" data-activity-filter="standard">Padrão</button>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-right: 0.5rem; min-width: 140px;">Limiar de Caçada:</span>
+                        <button class="filter-btn active sanity-filter-btn" data-sanity-filter="all">Todos</button>
+                        <button class="filter-btn sanity-filter-btn" data-sanity-filter="early">Caçador Precoce (>=60% San.)</button>
+                        <button class="filter-btn sanity-filter-btn" data-sanity-filter="standard">Padrão (50% San.)</button>
+                        <button class="filter-btn sanity-filter-btn" data-sanity-filter="late">Caçador Tardio (<=35% San.)</button>
+                    </div>
+                </div>
+
+                <div class="ghosts-grid" id="ghosts-grid-container">
+                    <!-- Complete ghost cards will be dynamically rendered here -->
+                </div>
+            </section>
+
+            <!-- TAB 3: SANITY & HUNT CALCULATOR -->
+            <section id="tab-sanity" class="tab-content">
+                <header class="tab-header">
+                    <h1>Sensor de Sanidade</h1>
+                    <p>Monitore a sanidade da equipe e descubra quais fantasmas são capazes de iniciar uma caçada ativa.</p>
+                </header>
+
+                <div class="grid-layout-sanity">
+                    <!-- Sanity Control Card -->
+                    <div class="card glass-card sanity-card">
+                        <h3>Controle de Sanidade Média</h3>
+                        <div class="sanity-display-container">
+                            <span id="sanity-percentage">50%</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <i class="fa-solid fa-face-smile icon-safe"></i>
+                            <input type="range" id="sanity-slider" min="0" max="100" value="50" class="custom-slider">
+                            <i class="fa-solid fa-face-skull icon-danger"></i>
+                        </div>
+                        
+                        <div class="risk-indicator" id="sanity-risk-level">
+                            <span class="risk-label">Risco de Caçada:</span>
+                            <span class="risk-status" id="risk-status-value">MODERADO</span>
+                        </div>
+                        <p class="sanity-desc">Ajuste o controle deslizante para representar a sanidade média mostrada na tela do caminhão.</p>
+                    </div>
+
+                    <!-- Active Hunters Card -->
+                    <div class="card glass-card active-hunters-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-triangle-exclamation"></i> Quem Pode Caçar Agora?</h3>
+                            <span class="badge danger-badge" id="active-hunters-count">10</span>
+                        </div>
+                        <div class="hunters-list" id="active-hunters-container">
+                            <!-- Ghost items showing those who can hunt at the current sanity level -->
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Cronômetro Tático de Caçada & Cooldown -->
+                    <div class="card glass-card" style="grid-column: 1 / -1; margin-top: 1.8rem; padding: 2rem; border-color: var(--accent-red); position: relative; overflow: hidden;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                <i class="fa-solid fa-stopwatch-20" style="font-size: 2.2rem; color: var(--accent-red); text-shadow: 0 0 15px rgba(255,0,85,0.6);"></i>
+                                <div>
+                                    <h3 style="font-family: var(--font-header); font-size: 1.4rem; color: #fff; margin: 0;">Cronômetro Tático de Caçada & Carência (Cooldown)</h3>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Monitore os segundos de caçada ativa e a contagem regressiva de segurança para o próximo ataque.</span>
+                                </div>
+                            </div>
+                            <div id="hunt-timer-badge-status" class="badge danger-badge" style="font-size: 0.95rem; padding: 0.6rem 1.4rem; letter-spacing: 0.5px; background: rgba(57,255,20,0.1); border-color: var(--accent-green); color: var(--accent-green);">
+                                🟢 AMBIENTE SEGURO DE EXPLORAÇÃO
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; align-items: center;">
+                            <!-- Timer Big Display -->
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); border: 2px solid var(--border-color); border-radius: 20px; padding: 2rem; text-align: center;" id="hunt-timer-display-box">
+                                <span id="hunt-timer-clock" style="font-family: var(--font-header); font-size: 4rem; font-weight: 900; color: var(--accent-green); text-shadow: 0 0 20px var(--accent-green-glow);">00:30</span>
+                                <span id="hunt-timer-phase-label" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 0.5rem;">Aguardando Disparo</span>
+                            </div>
+
+                            <!-- Controls & Presets -->
+                            <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                                <div>
+                                    <label style="font-size: 0.85rem; font-weight: 700; color: #fff; display: block; margin-bottom: 0.6rem;">Selecione o Modo de Contagem:</label>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.6rem;">
+                                        <button class="filter-btn active timer-preset-btn" data-mode="hunt" data-seconds="30" style="padding: 0.6rem; text-align: center; border-color: rgba(255,0,85,0.4); color: var(--accent-red); font-weight: 700;">
+                                            🔴 Caçada Ativa (30s)
+                                        </button>
+                                        <button class="filter-btn timer-preset-btn" data-mode="cooldown-std" data-seconds="30" style="padding: 0.6rem; text-align: center; border-color: rgba(0,240,255,0.4); color: var(--accent-blue); font-weight: 700;">
+                                            🟡 Carência Normal (30s)
+                                        </button>
+                                        <button class="filter-btn timer-preset-btn" data-mode="cooldown-demon" data-seconds="20" style="padding: 0.6rem; text-align: center; border-color: rgba(188,71,255,0.4); color: var(--primary); font-weight: 700;">
+                                            👿 Carência Demon (20s)
+                                        </button>
+                                        <button class="filter-btn timer-preset-btn" data-mode="cooldown-smudge" data-seconds="90" style="padding: 0.6rem; text-align: center; border-color: rgba(57,255,20,0.4); color: var(--accent-green); font-weight: 700;">
+                                            🌿 Incenso / Smudge (90s)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 1rem;">
+                                    <button class="btn btn-primary btn-lg" id="btn-start-hunt-timer" style="flex: 1; background: var(--accent-red); border-color: var(--accent-red); font-size: 1rem; font-weight: 800;">
+                                        <i class="fa-solid fa-play"></i> INICIAR CRONÔMETRO
+                                    </button>
+                                    <button class="btn btn-secondary btn-lg" id="btn-reset-hunt-timer" style="padding: 0.9rem 1.8rem;">
+                                        <i class="fa-solid fa-rotate-left"></i> REINICIAR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: CURSED ITEMS & TAROT & MODELS -->
+            <section id="tab-cursed" class="tab-content">
+                <header class="tab-header">
+                    <h1>Biblioteca Técnica de Blair</h1>
+                    <p>Estude os itens amaldiçoados, modelos físicos das entidades, assinaturas acústicas e dinâmicas ambientais.</p>
+                </header>
+
+                <!-- Sub-tab Navigation inside tab-cursed -->
+                <div class="sub-tab-bar" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; overflow-x: auto;">
+                    <button class="filter-btn active sub-tab-btn" data-sub-tab="cursed-sim">Objetos Amaldiçoados</button>
+                    <button class="filter-btn sub-tab-btn" data-sub-tab="all-equipment">Catálogo Completo (18 Itens)</button>
+                    <button class="filter-btn sub-tab-btn" data-sub-tab="ghost-models">Skins & Assinaturas Acústicas</button>
+                    <button class="filter-btn sub-tab-btn" data-sub-tab="technical-deductions">Metodologias Ambientais</button>
+                </div>
+
+                <!-- Sub-tab 1: Cursed items and simulation -->
+                <div id="sub-tab-cursed-sim" class="sub-tab-content active-sub-content">
+                    <div class="grid-layout-cursed">
+                        <!-- Left: Cursed Item Selection & Details -->
+                        <div class="card glass-card cursed-selector-card">
+                            <h3>Selecione o Item da Partida</h3>
+                            <div class="cursed-icons-grid">
+                                <div class="cursed-item-btn active" data-item="tarot" id="cursed-tarot">
+                                    <i class="fa-solid fa-copy"></i>
+                                    <span>Cartas de Tarot</span>
+                                </div>
+                                <div class="cursed-item-btn" data-item="board" id="cursed-board">
+                                    <i class="fa-solid fa-table"></i>
+                                    <span>Tábua Ouija</span>
+                                </div>
+                                <div class="cursed-item-btn" data-item="music" id="cursed-music">
+                                    <i class="fa-solid fa-music"></i>
+                                    <span>Caixa de Música</span>
+                                </div>
+                                <div class="cursed-item-btn" data-item="circle" id="cursed-circle">
+                                    <i class="fa-solid fa-circle-notch"></i>
+                                    <span>Círculo Invocação</span>
+                                </div>
+                            </div>
+
+                            <div class="cursed-description-box" id="cursed-details-display">
+                                <!-- Details about the active cursed item -->
+                            </div>
+                        </div>
+
+                        <!-- Right: Tarot Simulation Deck -->
+                        <div class="card glass-card tarot-simulator-card" id="tarot-simulator-panel">
+                            <div class="card-header">
+                                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Baralho do Destino</h3>
+                                <button class="btn btn-secondary" id="btn-reset-deck">Recarregar Deck</button>
+                            </div>
+                            
+                            <div class="tarot-playfield">
+                                <div class="tarot-card-container">
+                                    <div class="tarot-card-inner" id="tarot-card-graphic">
+                                        <!-- Front Face -->
+                                        <div class="tarot-face tarot-front">
+                                            <div class="tarot-design">
+                                                <i class="fa-solid fa-ghost"></i>
+                                                <span>COMPRAR CARTA</span>
+                                            </div>
+                                        </div>
+                                        <!-- Back Face (Revealed Card) -->
+                                        <div class="tarot-face tarot-back" id="tarot-back-face">
+                                            <div class="tarot-result" id="tarot-card-result">
+                                                <h4 id="tarot-card-title">A MORTE</h4>
+                                                <i class="fa-solid fa-skull" id="tarot-card-icon"></i>
+                                                <p id="tarot-card-desc">Inicia uma Caçada Amaldiçoada imediata.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn btn-primary btn-lg" id="btn-draw-card">Puxar Carta</button>
+                                <span class="cards-left-text" id="cards-remaining-count">Cartas Restantes: 10/10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 2: Catálogo Completo de Equipamentos & Curiosidades (18 Itens) -->
+                <div id="sub-tab-all-equipment" class="sub-tab-content" style="display: none;">
+                    <div class="card glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--accent-blue); margin-bottom: 0.5rem; font-family: var(--font-header); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-boxes-packing"></i> Catálogo Completo de Equipamentos & Curiosidades (18 Itens)
+                        </h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.2rem;">
+                            Guia técnico oficial de todas as 18 ferramentas de investigação de Blair, seus níveis de eficiência, funções exatas e curiosidades táticas.
+                        </p>
+                        
+                        <div class="models-grid-layout" id="equipment-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.2rem;">
+                            <!-- Equipment items will be dynamically generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 3: Physical models & Acoustics -->
+                <div id="sub-tab-ghost-models" class="sub-tab-content" style="display: none;">
+                    <div class="card glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--accent-blue); margin-bottom: 0.5rem; font-family: var(--font-header);"><i class="fa-solid fa-headphones"></i> Aparência Cosmética vs. Áudio</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">
+                            <strong>Aviso Importante:</strong> O modelo tridimensional de um fantasma é 100% cosmético e não dita o tipo de entidade (um Shade pode parecer um palhaço, e um Demon pode parecer uma freira). No entanto, o modelo dita a <strong>assinatura acústica (áudio)</strong> e efeitos visuais da caçada!
+                        </p>
+                        <div style="background: rgba(239, 68, 68, 0.05); padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.15); margin-bottom: 1.5rem;">
+                            <h4 style="color: var(--accent-red); font-size: 0.95rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-header);"><i class="fa-solid fa-triangle-exclamation"></i> A Anomalia de Áudio do Lament (Dedução Chave)</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                                O **Lament** é a única entidade do jogo que silencia deliberadamente os passos e os sons guturais/cantos do modelo físico que usa. Se você ouvir passos altos de longe, mas durante a perseguição ele ficar em silêncio absoluto quando longe, é um Lament!
+                            </p>
+                        </div>
+                        
+                        <div class="models-grid-layout" id="models-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem;">
+                            <!-- Models will be dynamically generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-tab 3: Metodologias Técnicas -->
+                <div id="sub-tab-technical-deductions" class="sub-tab-content" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="card glass-card" style="padding: 1.5rem;">
+                            <h3 style="color: var(--accent-blue); font-size: 1.1rem; margin-bottom: 0.8rem; font-family: var(--font-header);"><i class="fa-solid fa-temperature-arrow-down"></i> Termodinâmica Aplicada</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - A temperatura do cômodo cai de forma gradual **somente** quando o fantasma está fisicamente no quarto.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - A temperatura do quarto favorito nunca volta a subir espontaneamente se ele continuar sendo o quarto favorito.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - O limiar para confirmar **Temperaturas Negativas** é de **&le; 1°C** (exibindo bafo de congelamento).
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - **Roaming Térmico Exclusivo:** Se o **Yama** ou o **Nook** realizarem um roaming de mudança de quarto permanente, o quarto favorito anterior esquenta imediatamente e o novo quarto congela abruptamente.
+                            </p>
+                        </div>
+
+                        <div class="card glass-card" style="padding: 1.5rem;">
+                            <h3 style="color: var(--accent-red); font-size: 1.1rem; margin-bottom: 0.8rem; font-family: var(--font-header);"><i class="fa-solid fa-gauge-simple-high"></i> Dinâmicas de EMF</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - **Interações simples:** Registram EMF Nível 2 ou Nível 3.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - **Manifestações físicas / eventos de fantasma:** Registram automaticamente EMF Nível 4.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - **Confirmação EMF 5:** Qualquer uma dessas leituras tem uma chance matemática de bater Nível 5 se for uma evidência válida do fantasma.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--accent-red); line-height: 1.5; font-weight: 700; margin-bottom: 0.5rem;">
+                                - **Alerta de Vuult:** Se o fantasma for o Vuult, ele pode sobrecarregar e explodir fisicamente leitores EMF colocados no chão com um estalo alto, inutilizando o dispositivo.
+                            </p>
+                        </div>
+
+                        <div class="card glass-card" style="padding: 1.5rem;">
+                            <h3 style="color: var(--accent-green); font-size: 1.1rem; margin-bottom: 0.8rem; font-family: var(--font-header);"><i class="fa-solid fa-camera"></i> Tecnologia de Luz Estruturada (SLS)</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - A câmera SLS não exibe esqueletos flutuantes simples: ela projeta uma malha de luz que revela a criatura caminhando e executando animações físicas realistas.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - Dificuldade **Fácil** possui 100% de chance de manifestação SLS imediata após uma interação.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - **Wraith:** Apresenta animação SLS única, flutuando continuamente acima do solo.
+                            </p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.5rem;">
+                                - **Yama:** Pode fazer o SLS vagar de forma autônoma fora da sala e perseguir investigadores pelo mapa como uma caçada real.
+                            </p>
+                        </div>
+
+                        <!-- Card 4: Dossiê de Curiosidades & Segredos Táticos -->
+                        <div class="card glass-card" style="padding: 1.5rem; grid-column: 1 / -1; border-color: var(--accent-yellow);">
+                            <h3 style="color: var(--accent-yellow); font-size: 1.15rem; margin-bottom: 0.8rem; font-family: var(--font-header); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-user-secret"></i> Dossiê de Curiosidades & Segredos Ocultos de Blair
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                                <div style="background: rgba(254, 228, 64, 0.05); border: 1px solid rgba(254, 228, 64, 0.2); padding: 0.8rem; border-radius: 10px;">
+                                    <strong style="color: var(--accent-yellow); display: block; margin-bottom: 0.3rem;">🎶 O Segredo da Caixa de Música:</strong>
+                                    Se o fantasma chegar a menos de 5 metros da caixa enquanto ela toca, ele se materializa e caminha até ela. Se tocar na caixa ou em quem a segura, a caixa fecha e inicia uma **Caçada Amaldiçoada**. Jogar a caixa no chão aciona a caçada na hora!
+                                </div>
+                                <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); padding: 0.8rem; border-radius: 10px;">
+                                    <strong style="color: var(--accent-blue); display: block; margin-bottom: 0.3rem;">🕯️ Foto de 3 Estrelas no Círculo:</strong>
+                                    Ao acender as 5 velas do Círculo de Invocação, o fantasma fica **paralisado por 5 segundos** no centro. É o tempo exato para garantir uma foto perfeita de 3 estrelas antes que a caçada comece!
+                                </div>
+                                <div style="background: rgba(188, 71, 255, 0.05); border: 1px solid rgba(188, 71, 255, 0.2); padding: 0.8rem; border-radius: 10px;">
+                                    <strong style="color: var(--primary); display: block; margin-bottom: 0.3rem;">🧸 O Desafio das 100 Bonecas (0.2% Tarot):</strong>
+                                    Puxar a carta secreta *The Boo-Boo Doll* faz surgir de 40 a 100 bonequinhas roxas pela casa. Coletar todas sem morrer concede uma conquista emblemática exclusiva no Roblox!
+                                </div>
+                                <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.8rem; border-radius: 10px;">
+                                    <strong style="color: var(--accent-red); display: block; margin-bottom: 0.3rem;">✝️ Mito do Crucifixo na Caçada:</strong>
+                                    O crucifixo só impede o fantasma de INICIAR a caçada se ele nascer a até 3m do item (ou 5m do Demon). Se a caçada já começou, segurar o crucifixo **não bloqueia o ataque**!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: TAROT GUIDE -->
+            <section id="tab-tarot-guide" class="tab-content">
+                <header class="tab-header">
+                    <h1>Enciclopédia de Cartas de Tarot</h1>
+                    <p>Consulte a lista completa das 12 cartas de Tarot oficiais de Blair, suas probabilidades de puxada e seus efeitos exatos.</p>
+                </header>
+                
+                <div class="tarot-guide-grid" id="tarot-guide-grid-container">
+                    <!-- Cards will be dynamically rendered here -->
+                </div>
+
+                <!-- Boo-Boo Doll Spawn Checklist (Premium Extra) -->
+                <div class="card glass-card booboo-doll-card" style="margin-top: 3.5rem; padding: 2rem;">
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+                        <i class="fa-solid fa-person-running" style="font-size: 3.5rem; color: var(--accent-red); text-shadow: 0 0 15px var(--accent-red-glow);"></i>
+                        <div style="flex: 1;">
+                            <h3 style="font-family: var(--font-header); font-size: 1.4rem; margin-bottom: 0.5rem; color: #fff;">
+                                🧸 Caçador de Bonecas Boo-Boo (Conquista de Emblema)
+                            </h3>
+                            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+                                Puxar a carta rara <strong>The Boo-Boo Doll (0.2%)</strong> espalha entre 40 e 100 bonecas pelo mapa. Pegar todas as bonecas sem morrer garante um emblema oficial no jogo! Use o checklist abaixo para registrar os locais de spawn das bonecas e não esquecer de nenhum cômodo:
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="booboo-checklist-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                        <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <input type="checkbox" id="spawn-stillhouse" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                            <label for="spawn-stillhouse" style="font-size: 0.85rem; cursor: pointer; color: var(--text-main);">Stillhouse (Pôrão/Garagem)</label>
+                        </div>
+                        <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <input type="checkbox" id="spawn-school" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                            <label for="spawn-school" style="font-size: 0.85rem; cursor: pointer; color: var(--text-main);">School (Salas/Vestiário)</label>
+                        </div>
+                        <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.02); padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <input type="checkbox" id="spawn-finjito" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                            <label for="spawn-finjito" style="font-size: 0.85rem; cursor: pointer; color: var(--text-main);">Finjito's (Banheiro/Lobby)</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: TACTICAL CHAT FORUM (CYBER COMMAND HUD) -->
+            <section id="tab-forum" class="tab-content">
+                <!-- Tactical Command Banner -->
+                <div class="command-hud-banner">
+                    <div style="display: flex; align-items: center; gap: 1.2rem;">
+                        <div class="tactical-pulse-dot"></div>
+                        <div>
+                            <h2 style="margin: 0; font-family: var(--font-header); font-size: 1.6rem; color: #fff; text-shadow: 0 0 12px rgba(0,240,255,0.6); display: flex; align-items: center; gap: 0.8rem;">
+                                <i class="fa-solid fa-headset" style="color: var(--accent-blue); font-size: 1.8rem;"></i> CENTRAL DE COMANDO DE CAMPO
+                            </h2>
+                            <span style="font-size: 0.85rem; color: var(--accent-green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;">
+                                🔒 TRANSMISSÃO CRIPTOGRAFADA DE CAMPO
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-layout" style="grid-template-columns: 1.2fr 0.8fr; gap: 2rem;">
+                    <!-- Tactical Transmission & Chat Console -->
+                    <div class="card glass-card" style="padding: 1.6rem; height: 750px; display: flex; flex-direction: column; border-color: var(--accent-blue); overflow: hidden;">
+                        <div class="card-header" style="padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                <i class="fa-solid fa-terminal" style="color: var(--accent-blue); font-size: 1.8rem;"></i>
+                                <div>
+                                    <h3 style="font-size: 1.25rem; margin: 0; font-family: var(--font-header); font-weight: 700;">Console de Comunicação Tática</h3>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Transmissão Privada de Equipe</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Webhook Customizer -->
+                        <div style="background: rgba(0,240,255,0.04); border: 1px solid rgba(0,240,255,0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                            <label style="font-size: 0.8rem; font-weight: 700; color: #fff; display: block; margin-bottom: 0.4rem;">
+                                <i class="fa-brands fa-discord" style="color: #5865F2;"></i> Seu Webhook do Discord (Opcional):
+                            </label>
+                            <div style="display: flex; gap: 0.6rem;">
+                                <input type="password" id="custom-webhook-input" placeholder="Cole a URL do seu Webhook do Discord aqui..." style="flex: 1; padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); color: #fff; font-size: 0.82rem;">
+                                <button class="btn btn-primary" id="btn-save-webhook" style="padding: 0.6rem 1.1rem; font-size: 0.82rem; font-weight: 700;">
+                                    Salvar
+                                </button>
+                            </div>
+                            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.4rem;">Deixe em branco para usar apenas cópia local de mensagens. Cada jogador usa seu próprio canal!</span>
+                        </div>
+
+                        <!-- Live Radio Log Terminal -->
+                        <div id="tactical-log-terminal" style="flex-grow: 1; min-height: 0; border-radius: 14px; padding: 1.2rem; border: 1px solid var(--border-color); background: #07090e; font-family: monospace; font-size: 0.85rem; color: var(--accent-green); overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem;">
+                            <div style="color: var(--text-muted); border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 0.4rem;">
+                                [SISTEMA] Console Tático de Comunicação Inicializado. Nenhuma transmissão enviada ainda.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Media Gallery & Radio & Secondary Objectives -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- GIFs & Media Gallery Card -->
+                        <div class="card glass-card" style="padding: 1.5rem;">
+                            <h4 style="font-family: var(--font-header); font-size: 0.95rem; color: var(--primary); margin-bottom: 0.8rem; text-transform: uppercase;">
+                                <i class="fa-solid fa-images"></i> Galeria de GIFs
+                            </h4>
+                            <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;">Clique no card para copiar o link do GIF. Colando no chat, a imagem carrega sozinha:</p>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;">
+                                <div class="filter-btn copy-gif-btn" data-url="https://media.giphy.com/media/aTf4PONtSYLs3oOHmQ/giphy.gif" style="cursor: pointer; padding: 0.4rem; text-align: center; border-radius: 8px; display: flex; flex-direction: column; gap: 0.4rem; align-items: center;">
+                                    <div style="height: 45px; width: 100%; background: url('https://media.giphy.com/media/aTf4PONtSYLs3oOHmQ/giphy.gif') center/cover; border-radius: 4px;"></div>
+                                    <span style="font-size: 0.65rem; color: var(--text-main); font-weight: 600; white-space: nowrap;">👻 Fantasma</span>
+                                </div>
+                                <div class="filter-btn copy-gif-btn" data-url="https://media.giphy.com/media/26h0pkcQvqWaSLo52/giphy.gif" style="cursor: pointer; padding: 0.4rem; text-align: center; border-radius: 8px; display: flex; flex-direction: column; gap: 0.4rem; align-items: center;">
+                                    <div style="height: 45px; width: 100%; background: url('https://media.giphy.com/media/26h0pkcQvqWaSLo52/giphy.gif') center/cover; border-radius: 4px;"></div>
+                                    <span style="font-size: 0.65rem; color: var(--text-main); font-weight: 600; white-space: nowrap;">🏃‍♂️ Corra!</span>
+                                </div>
+                                <div class="filter-btn copy-gif-btn" data-url="https://media.giphy.com/media/12jifpKTQANQ1q/giphy.gif" style="cursor: pointer; padding: 0.4rem; text-align: center; border-radius: 8px; display: flex; flex-direction: column; gap: 0.4rem; align-items: center;">
+                                    <div style="height: 45px; width: 100%; background: url('https://media.giphy.com/media/12jifpKTQANQ1q/giphy.gif') center/cover; border-radius: 4px;"></div>
+                                    <span style="font-size: 0.65rem; color: var(--text-main); font-weight: 600; white-space: nowrap;">👹 Jumpscare</span>
+                                </div>
+                                <div class="filter-btn copy-gif-btn" data-url="https://media.giphy.com/media/3o7TKSj06tqgEpOGgE/giphy.gif" style="cursor: pointer; padding: 0.4rem; text-align: center; border-radius: 8px; display: flex; flex-direction: column; gap: 0.4rem; align-items: center;">
+                                    <div style="height: 45px; width: 100%; background: url('https://media.giphy.com/media/3o7TKSj06tqgEpOGgE/giphy.gif') center/cover; border-radius: 4px;"></div>
+                                    <span style="font-size: 0.65rem; color: var(--text-main); font-weight: 600; white-space: nowrap;">🏆 Vitória</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Rádio Tático de Campo & Transmissão -->
+                        <div class="card glass-card" style="padding: 1.5rem; border-color: var(--accent-blue);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                <h4 style="font-family: var(--font-header); font-size: 1rem; color: var(--accent-blue); margin: 0; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-walkie-talkie"></i> Rádio Tático & Transmissão
+                                </h4>
+                                <span class="badge" style="font-size: 0.72rem; padding: 0.25rem 0.6rem; border-color: var(--accent-green); color: var(--accent-green); background: rgba(57,255,20,0.08);">
+                                    🎙️ Frequência 144.80 MHz
+                                </span>
+                            </div>
+
+                            <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                Entre no canal de voz do Discord e envie transmissões em viva-voz para a equipe:
+                            </p>
+
+                            <!-- Direct Voice Channel Join Button -->
+                            <a href="https://discord.com" target="_blank" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; padding: 0.75rem; font-size: 0.88rem; font-weight: 800; background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%); border-color: #5865F2; box-shadow: 0 0 15px rgba(88,101,242,0.4); margin-bottom: 1rem;">
+                                <i class="fa-solid fa-phone-volume"></i> ABRIR O DISCORD (CHAMADA DE VOZ)
+                            </a>
+
+                            <!-- Push To Talk (PTT) Quick Transmit Buttons -->
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main);">Transmissão de Voz no Rádio:</span>
+                                <button class="filter-btn radio-transmit-btn" data-voice="Atenção equipe! O fantasma iniciou caçada! Todo mundo quieto no microfone!" data-text="📻 **[RÁDIO DE CAMPO]** 🚨 Caçada Iniciada! Silêncio no chat de voz e corram para os armários!" style="width: 100%; text-align: left; border-color: rgba(255,0,85,0.4); color: var(--accent-red); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-tower-cell"></i> "Alerta de Caçada (Silêncio!)"
+                                </button>
+                                <button class="filter-btn radio-transmit-btn" data-voice="Achei o quarto do fantasma! Temperatura caiu para menos cinco graus!" data-text="📻 **[RÁDIO DE CAMPO]** ❄️ Sala Favorita Localizada! Temperatura Negativa Confirmada!" style="width: 100%; text-align: left; border-color: rgba(0,240,255,0.4); color: var(--accent-blue); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-snowflake"></i> "Quarto Encontrado (-5°C)"
+                                </button>
+                                <button class="filter-btn radio-transmit-btn" data-voice="Atenção! Usei o incenso na sala do fantasma, estamos protegidos por noventa segundos!" data-text="📻 **[RÁDIO DE CAMPO]** 🌿 Smudge Stick Usado! Quarto Limpo com Sucesso (90s de Paz)!" style="width: 100%; text-align: left; border-color: rgba(57,255,20,0.4); color: var(--accent-green); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-spray-can"></i> "Incenso Usado (90s Protegido)"
+                                </button>
+                                <button class="filter-btn radio-transmit-btn" data-voice="Fantasma identificado! Preparem os crucifixos e finalizem o diário!" data-text="📻 **[RÁDIO DE CAMPO]** 🎯 Fantasma Identificado! Finalizem o Diário e Evacuem!" style="width: 100%; text-align: left; border-color: rgba(188,71,255,0.4); color: var(--primary); font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-circle-check"></i> "Fantasma Deduzido (Finalizar!)"
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Secondary Objectives Checklist -->
+                        <div class="card glass-card" style="padding: 1.5rem;">
+                            <h4 style="font-family: var(--font-header); font-size: 0.95rem; color: var(--primary); margin-bottom: 0.8rem; text-transform: uppercase;">
+                                <i class="fa-solid fa-list-check"></i> Objetivos Secundários
+                            </h4>
+                            <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.8rem;">Marque as tarefas concluídas na partida atual:</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                                <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.01); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <input type="checkbox" id="obj-bone" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    <label for="obj-bone" style="font-size: 0.8rem; cursor: pointer; color: var(--text-main);">Achar o Osso Perdido</label>
+                                </div>
+                                <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.01); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <input type="checkbox" id="obj-photo" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    <label for="obj-photo" style="font-size: 0.8rem; cursor: pointer; color: var(--text-main);">Tirar foto do Fantasma</label>
+                                </div>
+                                <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.01); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <input type="checkbox" id="obj-crucifix" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    <label for="obj-crucifix" style="font-size: 0.8rem; cursor: pointer; color: var(--text-main);">Impedir caçada com Crucifixo</label>
+                                </div>
+                                <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.01); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <input type="checkbox" id="obj-sensor" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    <label for="obj-sensor" style="font-size: 0.8rem; cursor: pointer; color: var(--text-main);">Sensor de Movimento</label>
+                                </div>
+                                <div class="checklist-item" style="display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.01); padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                                    <input type="checkbox" id="obj-smudge" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    <label for="obj-smudge" style="font-size: 0.8rem; cursor: pointer; color: var(--text-main);">Limpar sala com Incenso</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Ghost Details Modal -->
+    <div class="modal" id="ghost-modal">
+        <div class="modal-content glass-card">
+            <span class="close-modal-btn" id="close-modal">&times;</span>
+            <div class="modal-body" id="ghost-modal-body">
+                <!-- Content will be rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Javascript -->
+    <script src="app.js"></script>
+</body>
+</html>
