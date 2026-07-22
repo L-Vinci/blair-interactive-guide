@@ -763,10 +763,14 @@ let currentSanity = 50;
 let currentCursedItem = "tarot";
 let activeTarotDeck = [...tarotCards];
 
-// Audio Synthesizer for UI Clicks & Effects
+// Audio Synthesizer with Bass Boost & Sinister Horror Orchestra BGM Engine
 const AudioSynth = {
     audioCtx: null,
     isMuted: false,
+    bgmPlaying: false,
+    bgmInterval: null,
+    bassOsc: null,
+    bgmGain: null,
     
     init() {
         if (!this.audioCtx && (window.AudioContext || window.webkitAudioContext)) {
@@ -775,6 +779,7 @@ const AudioSynth = {
         }
     },
 
+    // Bass Boosted Click Sound
     playClick() {
         if (this.isMuted) return;
         try {
@@ -783,19 +788,170 @@ const AudioSynth = {
             if (this.audioCtx.state === 'suspended') {
                 this.audioCtx.resume();
             }
+            const now = this.audioCtx.currentTime;
+
+            // 1. High Click Tone
             const osc = this.audioCtx.createOscillator();
             const gain = this.audioCtx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(800, this.audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, this.audioCtx.currentTime + 0.04);
-            gain.gain.setValueAtTime(0.08, this.audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.04);
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(150, now + 0.05);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
             osc.connect(gain);
             gain.connect(this.audioCtx.destination);
-            osc.start();
-            osc.stop(this.audioCtx.currentTime + 0.04);
-        } catch (e) {
-            // Safe fallback
+            osc.start(now);
+            osc.stop(now + 0.05);
+
+            // 2. Heavy Sub-Bass Boom (Bass Boosted!)
+            const sub = this.audioCtx.createOscillator();
+            const subGain = this.audioCtx.createGain();
+            sub.type = "sine";
+            sub.frequency.setValueAtTime(90, now);
+            sub.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+            subGain.gain.setValueAtTime(0.35, now);
+            subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            sub.connect(subGain);
+            subGain.connect(this.audioCtx.destination);
+            sub.start(now);
+            sub.stop(now + 0.12);
+        } catch (e) {}
+    },
+
+    // Sinister Piano Note (Piano Macabro)
+    playPianoNote(freq, duration = 2.5) {
+        if (this.isMuted || !this.bgmPlaying) return;
+        try {
+            this.init();
+            if (!this.audioCtx) return;
+            const now = this.audioCtx.currentTime;
+            
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, now);
+            
+            // Piano decay envelope
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            
+            osc.connect(gain);
+            if (this.bgmGain) {
+                gain.connect(this.bgmGain);
+            } else {
+                gain.connect(this.audioCtx.destination);
+            }
+            
+            osc.start(now);
+            osc.stop(now + duration);
+        } catch (e) {}
+    },
+
+    // Eerie Violin Screech Glissando (Violino Sinistro)
+    playViolinScreech() {
+        if (this.isMuted || !this.bgmPlaying) return;
+        try {
+            this.init();
+            if (!this.audioCtx) return;
+            const now = this.audioCtx.currentTime;
+
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            const filter = this.audioCtx.createBiquadFilter();
+
+            osc.type = "sawtooth";
+            const startFreq = 440 + Math.random() * 300;
+            const endFreq = startFreq + (Math.random() > 0.5 ? 120 : -120);
+            
+            osc.frequency.setValueAtTime(startFreq, now);
+            osc.frequency.linearRampToValueAtTime(endFreq, now + 3.0);
+
+            filter.type = "bandpass";
+            filter.frequency.setValueAtTime(800, now);
+            filter.Q.setValueAtTime(3.0, now);
+
+            gain.gain.setValueAtTime(0.01, now);
+            gain.gain.linearRampToValueAtTime(0.08, now + 1.5);
+            gain.gain.linearRampToValueAtTime(0.001, now + 3.5);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            if (this.bgmGain) {
+                gain.connect(this.bgmGain);
+            } else {
+                gain.connect(this.audioCtx.destination);
+            }
+
+            osc.start(now);
+            osc.stop(now + 3.5);
+        } catch (e) {}
+    },
+
+    // Toggle Sinister Orchestral BGM
+    toggleOrchestraBGM() {
+        this.init();
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
+        if (this.bgmPlaying) {
+            this.stopOrchestraBGM();
+            return false;
+        } else {
+            this.startOrchestraBGM();
+            return true;
+        }
+    },
+
+    startOrchestraBGM() {
+        this.bgmPlaying = true;
+        this.init();
+        if (!this.audioCtx) return;
+
+        // Master BGM Gain
+        this.bgmGain = this.audioCtx.createGain();
+        this.bgmGain.gain.setValueAtTime(0.25, this.audioCtx.currentTime);
+        this.bgmGain.connect(this.audioCtx.destination);
+
+        // Sub-Bass Orchestral Drone
+        this.bassOsc = this.audioCtx.createOscillator();
+        const bassGain = this.audioCtx.createGain();
+        this.bassOsc.type = "sine";
+        this.bassOsc.frequency.setValueAtTime(36, this.audioCtx.currentTime); // Low D0 sub-bass
+        bassGain.gain.setValueAtTime(0.2, this.audioCtx.currentTime);
+        this.bassOsc.connect(bassGain);
+        bassGain.connect(this.bgmGain);
+        this.bassOsc.start();
+
+        // Sinister Piano Chords Loop (Minor 2nd & Tritones)
+        const pianoNotes = [65.41, 69.30, 77.78, 82.41, 98.00, 103.83]; // Low C2, C#2, D#2, E2, G2, G#2
+        let step = 0;
+
+        this.bgmInterval = setInterval(() => {
+            if (!this.bgmPlaying) return;
+
+            // Play piano note
+            const note = pianoNotes[step % pianoNotes.length];
+            this.playPianoNote(note, 3.0);
+            step++;
+
+            // Trigger violin glissando every few steps
+            if (Math.random() < 0.45) {
+                this.playViolinScreech();
+            }
+        }, 2200);
+    },
+
+    stopOrchestraBGM() {
+        this.bgmPlaying = false;
+        if (this.bgmInterval) {
+            clearInterval(this.bgmInterval);
+            this.bgmInterval = null;
+        }
+        if (this.bassOsc) {
+            try { this.bassOsc.stop(); } catch (e) {}
+            this.bassOsc = null;
         }
     }
 };
@@ -876,24 +1032,37 @@ document.addEventListener("DOMContentLoaded", () => {
     setupFaqAccordion();
     setupHuntTimer();
     setupTacticalRadio();
+    setupBgmControls();
     fetchDiscordWidgetStatus();
 });
 
 // 5. Navigation Panel Logic
 function setupTabNavigation() {
-    elements.navButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            elements.navButtons.forEach(b => b.classList.remove("active"));
-            elements.tabSections.forEach(tab => tab.classList.remove("active"));
+    const navBtns = document.querySelectorAll(".nav-btn");
+    const tabSections = document.querySelectorAll(".tab-content");
+
+    navBtns.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const targetBtn = e.currentTarget;
+            const tabId = targetBtn.getAttribute("data-tab");
             
-            btn.classList.add("active");
-            activeTab = btn.getAttribute("data-tab");
-            document.getElementById(`tab-${activeTab}`).classList.add("active");
-            
-            // Trigger tactical click
+            if (!tabId) return;
+
+            // Remove active from all buttons & tabs
+            navBtns.forEach(b => b.classList.remove("active"));
+            tabSections.forEach(tab => tab.classList.remove("active"));
+
+            // Activate current button & tab
+            targetBtn.classList.add("active");
+            const targetTabSection = document.getElementById(`tab-${tabId}`);
+            if (targetTabSection) {
+                targetTabSection.classList.add("active");
+            }
+
+            // Play tactile sound
             AudioSynth.playClick();
-            
-            if (activeTab === "tarot-guide") {
+
+            if (tabId === "tarot-guide") {
                 renderTarotGuide();
             }
         });
@@ -2382,4 +2551,26 @@ function setupTacticalRadio() {
             }
         });
     });
+}
+
+// 21. Sinister Orchestral BGM Controls
+function setupBgmControls() {
+    const bgmBtn = document.getElementById("btn-toggle-bgm");
+    const bgmIcon = document.getElementById("bgm-icon");
+    const bgmLabel = document.getElementById("bgm-label");
+
+    if (bgmBtn) {
+        bgmBtn.addEventListener("click", () => {
+            const isPlaying = AudioSynth.toggleOrchestraBGM();
+            if (isPlaying) {
+                if (bgmIcon) bgmIcon.className = "fa-solid fa-compact-disc fa-spin";
+                if (bgmLabel) bgmLabel.textContent = "MÚSICA: PAUSAR ORQUESTRA";
+                showGlobalToast("🎻 Orquestra Sinistra iniciada! (Piano & Violino Macabro)");
+            } else {
+                if (bgmIcon) bgmIcon.className = "fa-solid fa-compact-disc";
+                if (bgmLabel) bgmLabel.textContent = "MÚSICA: ORQUESTRA SINISTRA";
+                showGlobalToast("🔇 Música de fundo pausada.");
+            }
+        });
+    }
 }
