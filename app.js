@@ -763,6 +763,43 @@ let currentSanity = 50;
 let currentCursedItem = "tarot";
 let activeTarotDeck = [...tarotCards];
 
+// Audio Synthesizer for UI Clicks & Effects
+const AudioSynth = {
+    audioCtx: null,
+    isMuted: false,
+    
+    init() {
+        if (!this.audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            this.audioCtx = new AudioCtx();
+        }
+    },
+
+    playClick() {
+        if (this.isMuted) return;
+        try {
+            this.init();
+            if (!this.audioCtx) return;
+            if (this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(800, this.audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, this.audioCtx.currentTime + 0.04);
+            gain.gain.setValueAtTime(0.08, this.audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.04);
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            osc.start();
+            osc.stop(this.audioCtx.currentTime + 0.04);
+        } catch (e) {
+            // Safe fallback
+        }
+    }
+};
+
 // 3. DOM Elements
 const elements = {
     navButtons: document.querySelectorAll(".nav-btn"),
